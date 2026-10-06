@@ -1,0 +1,38 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M499S5BQBEB6YVN7P26FE8E1",
+  "strategy": "manual-commit",
+  "branch": "feat/convex-static-hosting",
+  "checkpoints_count": 19,
+  "files_touched": [
+    "convex/_generated/api.d.ts",
+    "convex/_generated/server.d.ts",
+    "convex/convex.config.ts",
+    "convex/http.ts",
+    "convex/items.ts",
+    "convex/logs.ts",
+    "convex/schema.ts",
+    "convex/serverTimes.ts",
+    "src/components/RegionBlock.tsx",
+    "src/components/RowTable.tsx",
+    "src/components/TileGrid.tsx",
+    "src/hooks/useRegionBench.ts",
+    "src/regions.ts"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 268,
+    "cache_creation_tokens": 241736,
+    "cache_read_tokens": 21647389,
+    "output_tokens": 85204,
+    "api_call_count": 134
+  }
+}
