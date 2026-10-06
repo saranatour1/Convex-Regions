@@ -1,0 +1,37 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M49A0FK570QTS9QW9992F460",
+  "session_id": "5a44e56a-36b8-4d08-a7ea-a7150ca43b86",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T19:10:54.837728Z",
+  "branch": "feat/convex-static-hosting",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "91e11d54447c",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 312,
+    "cache_creation_tokens": 269621,
+    "cache_read_tokens": 27554084,
+    "output_tokens": 98941,
+    "api_call_count": 156
+  },
+  "session_metrics": {
+    "turn_count": 20
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 11,
+      "user_lines_removed": 0,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/launch.json": 11
+      }
+    }
+  ]
+}
