@@ -25,3 +25,7 @@ To-do's from the plan have already been created. Do not create them again. Mark 
 ---
 
 is the .env.local file committed?!!!
+
+---
+
+Execute the selected diff-tab commit-and-push action.
