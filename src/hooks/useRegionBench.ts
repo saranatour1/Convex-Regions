@@ -8,13 +8,19 @@ import { stats, type Results } from "../lib/stats";
 import { describe, isRateLimited } from "../lib/errors";
 import { sessionToken } from "../session";
 
-export type Item = FunctionReturnType<typeof api.items.list>[number];
+export type Item = FunctionReturnType<typeof api.items.list>["items"][number];
 export type Busy = "insert" | "delete" | null;
 const EMPTY: Item[] = [];
 
+// One insert's timeline, all epoch ms. sentAt/receivedAt are this browser's clock;
+// startedAt (add began) and listRanAt (list re-ran with the row) are the server's.
+// Comparing across the two clocks needs a clock-offset estimate first.
+export type Stamps = { sentAt: number; startedAt: number; listRanAt?: number; receivedAt: number };
+const wallNow = () => performance.timeOrigin + performance.now(); // epoch ms, sub-ms precision
+
 export function useRegionBench(region: Region, onResult: (id: string, patch: Results) => void) {
   const convex = useConvex();
-  const raw = useQuery(api.items.list);
+  const raw = useQuery(api.items.list)?.items;
   const add = useMutation(api.items.add);
   const clear = useMutation(api.items.clear);
 
@@ -23,6 +29,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
   const run = useRef<{ kind: "insert" | "delete"; total: number; start: number; lat: number[] } | null>(null);
 
   const [latency, setLatency] = useState<Record<string, number>>({}); // key → browser sent → seen ms (this tab)
+  const [stamps, setStamps] = useState<Record<string, Stamps>>({}); // key → server/browser timeline
   const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order
   const [busy, setBusy] = useState<Busy>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -51,7 +58,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     const pending = sent.current; // same Map for the hook's lifetime
     const unsubscribe = watch.onUpdate(() => {
       const r = run.current;
-      const list = watch.localQueryResult();
+      const list = watch.localQueryResult()?.items;
       if (r?.kind !== "delete" || !list) return;
       const now = performance.now();
       const present = new Set(list.map((i) => i._id));
@@ -103,9 +110,14 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     for (let i = 0; i < n; i++) {
       const key = crypto.randomUUID();
       const sentAt = performance.now();
+      const sentWall = wallNow();
       sent.current.set(key, sentAt);
-      add({ key, sessionToken }).then(() => {
+      add({ key, sessionToken }).then(({ startedAt }) => {
         const now = performance.now();
+        // The promise resolves in the same update that delivered the row, so the cached
+        // list result right now is the run that carried it.
+        const listRanAt = convex.watchQuery(api.items.list, {}).localQueryResult()?.ranAt;
+        setStamps((prev) => ({ ...prev, [key]: { sentAt: sentWall, startedAt, listRanAt, receivedAt: wallNow() } }));
         const r = run.current;
         if (!r || !sent.current.delete(key)) return; // run was cancelled
         const t = now - sentAt;
@@ -134,7 +146,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     clear({ sessionToken }).catch(fail);
   };
 
-  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, series, busy, progress, error, insert, del };
+  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, stamps, series, busy, progress, error, insert, del };
 }
 
 export type Bench = ReturnType<typeof useRegionBench>;

@@ -17,24 +17,32 @@ const allowWrite = async (ctx: MutationCtx, sessionToken: string) => {
   if (!env.PAUSE_RATE_LIMITS) await rateLimiter.limit(ctx, "writes", { key: user._id, throws: true });
 };
 
+// ranAt: server time this result was computed (Date.now() is frozen at function start), i.e.
+// just before a write's update is pushed to clients. Deliberate wall-clock read: we want the
+// stamp of each run, and `list` re-runs on every insert anyway, so caching gains nothing.
 export const list = query({
   args: {},
-  returns: v.array(v.object({ _id: v.id("items"), key: v.string(), serverMs: v.optional(v.number()) })),
+  returns: v.object({
+    ranAt: v.number(),
+    items: v.array(v.object({ _id: v.id("items"), key: v.string(), serverMs: v.optional(v.number()) })),
+  }),
   handler: async (ctx) => {
     const items = await ctx.db.query("items").order("desc").take(WINDOW);
-    return items.map(({ _id, key, serverMs }) => ({ _id, key, serverMs }));
+    return { ranAt: Date.now(), items: items.map(({ _id, key, serverMs }) => ({ _id, key, serverMs })) };
   },
 });
 
+// startedAt: server time this mutation began executing (same as the log's executionTimestamp).
 export const add = mutation({
   args: { key: v.string(), sessionToken: v.string() },
-  returns: v.id("items"),
+  returns: v.object({ id: v.id("items"), startedAt: v.number() }),
   handler: async (ctx, { key, sessionToken }) => {
+    const startedAt = Date.now();
     if (key.length > 64) throw new Error("key too long");
     await allowWrite(ctx, sessionToken);
     const id = await ctx.db.insert("items", { key });
     console.log(id); // the log stream pairs this line with the execution time (convex/http.ts)
-    return id;
+    return { id, startedAt };
   },
 });
 
