@@ -2,8 +2,20 @@ import { defineSchema, defineTable } from "convex/server";
 import { v } from "convex/values";
 
 export default defineSchema({
-  // key: client-generated UUID so the browser can match "sent" to "seen"
-  items: defineTable({ key: v.string() }),
+  // key: client-generated UUID. serverMs: items:add execution time from the
+  // dashboard logs, filled in by the log stream webhook (convex/http.ts).
+  items: defineTable({
+    key: v.string(),
+    serverMs: v.optional(v.number()),
+    latencyMs: v.optional(v.number()), // ponytail: unused, old rows still carry it; drop after a Delete all
+  }),
+  // Log events arrive split (console line with the id, execution with the time),
+  // possibly in different batches: park the half that came first, by request id.
+  pendingServerTimes: defineTable({
+    requestId: v.string(),
+    itemId: v.optional(v.string()),
+    ms: v.optional(v.number()),
+  }).index("by_requestId", ["requestId"]),
   // Singleton: the delete worker removes items created at or before `before`.
   clears: defineTable({ before: v.number() }),
 

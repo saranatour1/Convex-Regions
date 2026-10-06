@@ -9,9 +9,11 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as logs from "../logs.js";
 import type * as rateLimits from "../rateLimits.js";
+import type * as serverTimes from "../serverTimes.js";
 import type * as sessions from "../sessions.js";
 
 import type {
@@ -22,9 +24,11 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  http: typeof http;
   items: typeof items;
   logs: typeof logs;
   rateLimits: typeof rateLimits;
+  serverTimes: typeof serverTimes;
   sessions: typeof sessions;
 }>;
 
@@ -57,4 +61,5 @@ export declare const internal: FilterApi<
 export declare const components: {
   batchWorker: import("@convex-dev/batch-worker/_generated/component.js").ComponentApi<"batchWorker">;
   rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+  staticHosting: import("@convex-dev/static-hosting/_generated/component.js").ComponentApi<"staticHosting">;
 };
