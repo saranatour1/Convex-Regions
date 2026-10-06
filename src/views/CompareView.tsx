@@ -71,7 +71,7 @@ export function CompareView({
             <h2 className="text-sm font-medium text-neutral-100">Time until each write shows up</h2>
             <span className="text-xs text-muted">x: write # (arrival order) · y: ms</span>
           </header>
-          <div className="min-h-0 flex-1">
+          <div className="relative min-h-64 flex-1">
             <LatencyChart benches={benches} />
           </div>
           {empty && (
