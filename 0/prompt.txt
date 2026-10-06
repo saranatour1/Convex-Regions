@@ -196,3 +196,7 @@ where's the gragh?
 ---
 
 do i need to add a PR for that or is the latest on the .site url
+
+---
+
+update the og image, and the site's branding to have the convex logo?
