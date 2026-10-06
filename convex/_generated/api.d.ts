@@ -8,7 +8,11 @@
  * @module
  */
 
-import type * as myFunctions from "../myFunctions.js";
+import type * as admin from "../admin.js";
+import type * as items from "../items.js";
+import type * as logs from "../logs.js";
+import type * as rateLimits from "../rateLimits.js";
+import type * as sessions from "../sessions.js";
 
 import type {
   ApiFromModules,
@@ -17,7 +21,11 @@ import type {
 } from "convex/server";
 
 declare const fullApi: ApiFromModules<{
-  myFunctions: typeof myFunctions;
+  admin: typeof admin;
+  items: typeof items;
+  logs: typeof logs;
+  rateLimits: typeof rateLimits;
+  sessions: typeof sessions;
 }>;
 
 /**
@@ -46,4 +54,7 @@ export declare const internal: FilterApi<
   FunctionReference<any, "internal">
 >;
 
-export declare const components: {};
+export declare const components: {
+  batchWorker: import("@convex-dev/batch-worker/_generated/component.js").ComponentApi<"batchWorker">;
+  rateLimiter: import("@convex-dev/rate-limiter/_generated/component.js").ComponentApi<"rateLimiter">;
+};
