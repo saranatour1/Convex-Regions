@@ -13,6 +13,7 @@
     "nettest": "for r in us eu au ca; do echo \"== dev/$r\"; convex network-test --deployment dev/$r; done",
     "og": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --log-level=3 --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630 --screenshot=public/og.png \"file://$PWD/scripts/og.html\"",
     "block": "sh scripts/block.sh",
+    "region-logs": "node scripts/region-logs.mjs",
     "deploy:site": "convex dev --once && static-hosting upload --build"
   },
   "dependencies": {

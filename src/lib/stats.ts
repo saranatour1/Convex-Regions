@@ -6,7 +6,8 @@ export type Net = {
   echoBig?: number;
   mbps?: number;
 };
-export type Results = { insert?: Stats; delete?: Stats };
+// insert: browser E2E (send → mutation resolve). insertServer: same-clock listRanAt − startedAt.
+export type Results = { insert?: Stats; insertServer?: Stats; delete?: Stats };
 
 export const time = async (f: () => Promise<unknown>) => {
   const t = performance.now();
@@ -23,3 +24,6 @@ export const stats = (lat: number[], total: number): Stats => {
   const s = [...lat].sort((a, b) => a - b);
   return { n: s.length, p50: pct(s, 0.5), p95: pct(s, 0.95), max: s[s.length - 1], total };
 };
+
+/** Primary ranking metric: server-span median when present, else browser E2E. */
+export const primaryInsert = (r: Results | undefined): Stats | undefined => r?.insertServer ?? r?.insert;
