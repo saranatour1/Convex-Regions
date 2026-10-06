@@ -3,9 +3,15 @@
   "checkpoint_id": "01M49DTGFHM9V5GA012GCMR3YM",
   "strategy": "manual-commit",
   "branch": "feat/server-timestamps",
-  "checkpoints_count": 3,
+  "checkpoints_count": 8,
   "files_touched": [
-    "package.json"
+    "package.json",
+    "scripts/region-logs.mjs",
+    "src/components/RegionBlock.tsx",
+    "src/hooks/useRegionBench.ts",
+    "src/lib/stats.ts",
+    "src/views/CompareView.tsx",
+    "src/views/LatencyView.tsx"
   ],
   "sessions": [
     {
@@ -14,13 +20,20 @@
       "compact_transcript": "/0/transcript.jsonl",
       "content_hash": "/0/content_hash.txt",
       "prompt": "/0/prompt.txt"
+    },
+    {
+      "metadata": "/1/metadata.json",
+      "transcript": "/1/full.jsonl",
+      "compact_transcript": "/1/transcript.jsonl",
+      "content_hash": "/1/content_hash.txt",
+      "prompt": "/1/prompt.txt"
     }
   ],
   "token_usage": {
-    "input_tokens": 484,
+    "input_tokens": 494806,
     "cache_creation_tokens": 350355,
-    "cache_read_tokens": 55095870,
-    "output_tokens": 148441,
-    "api_call_count": 242
+    "cache_read_tokens": 58925502,
+    "output_tokens": 176707,
+    "api_call_count": 247
   }
 }
