@@ -14,6 +14,9 @@ importers:
       '@convex-dev/rate-limiter':
         specifier: ^0.4.0
         version: 0.4.0(@standard-schema/spec@1.1.0)(@typescript/typescript6@6.0.2)(convex@1.46.0(react@19.3.0))(react@19.3.0)(zod@4.6.5)
+      '@convex-dev/static-hosting':
+        specifier: ^0.2.1
+        version: 0.2.1(convex@1.46.0(react@19.3.0))(react@19.3.0)
       clsx:
         specifier: ^2.1.1
         version: 2.1.1
@@ -172,6 +175,13 @@ packages:
     peerDependenciesMeta:
       react:
         optional: true
+
+  '@convex-dev/static-hosting@0.2.1':
+    resolution: {integrity: sha512-QMcfKUOB8dHeLa81xzk2GEIn7LzhEvtdgYhfFpIFer6uE/+xMStDxHAZsX5h1qsttYi7wNbEKAMf7MfOQ7ZrMw==}
+    hasBin: true
+    peerDependencies:
+      convex: ^1.37.0
+      react: ^18.3.1 || ^19.0.0
 
   '@esbuild/aix-ppc64@0.27.0':
     resolution: {integrity: sha512-KuZrd2hRjz01y5JK9mEBSD3Vj3mbCvemhT466rSuJYeE/hjuBrHfjjcjMdTm/sz7au+++sdbJZJmuBwQLuw68A==}
@@ -1897,6 +1907,11 @@ snapshots:
       - hono
       - typescript
       - zod
+
+  '@convex-dev/static-hosting@0.2.1(convex@1.46.0(react@19.3.0))(react@19.3.0)':
+    dependencies:
+      convex: 1.46.0(react@19.3.0)
+      react: 19.3.0
 
   '@esbuild/aix-ppc64@0.27.0':
     optional: true

@@ -1,4 +1,4 @@
-import type { Region } from "../regions";
+import { WINDOW, type Region } from "../regions";
 import { cx, ms } from "../lib/format";
 import type { Results } from "../lib/stats";
 import type { Bench } from "../hooks/useRegionBench";
@@ -41,7 +41,7 @@ export function RegionBlock({
           </span>
         )}
         <span className="font-mono text-xs tabular-nums text-muted">
-          {running ? `${b.progress!.done} / ${b.progress!.total}` : `${b.items.length} rows`}
+          {running ? `${b.progress!.done} / ${b.progress!.total}` : `${b.items.length}${b.items.length === WINDOW ? "+" : ""} rows`}
         </span>
       </header>
 
