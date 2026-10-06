@@ -1,22 +1,47 @@
 @import "tailwindcss";
 
 @theme {
-  --color-light: #ffffff;
-  --color-dark: #171717;
-}
+  /* Convex dashboard greys */
+  --color-canvas: #1a1a1a;
+  --color-panel: #222222;
+  --color-line: #3d3d3d;
+  --color-muted: #8f8f8f;
 
-@media (prefers-color-scheme: dark) {
-  body {
-    color: var(--color-light);
-    background: var(--color-dark);
-    font-family: Arial, Helvetica, sans-serif;
+  --animate-pop: pop 320ms cubic-bezier(0.34, 1.56, 0.64, 1) both;
+  --animate-flash: flash 700ms ease-out;
+  --animate-vanish: vanish 450ms ease-in forwards;
+  --animate-row-in: row-in 800ms ease-out;
+  --animate-row-out: row-out 600ms ease-in forwards;
+
+  @keyframes pop {
+    from { opacity: 0; transform: scale(0); }
+    to { opacity: 1; transform: scale(1); }
+  }
+  @keyframes vanish {
+    0% { transform: scale(1); }
+    35% { transform: scale(1.5); opacity: 1; }
+    100% { transform: scale(0); opacity: 0; }
+  }
+  @keyframes row-in {
+    0% { background: rgb(52 211 153 / 0.22); transform: translateY(-6px); opacity: 0; }
+    30% { transform: translateY(0); opacity: 1; }
+    100% { background: transparent; }
+  }
+  @keyframes row-out {
+    0% { background: rgb(239 68 68 / 0.25); }
+    60% { opacity: 1; }
+    100% { background: transparent; opacity: 0; }
+  }
+  @keyframes flash {
+    from { color: var(--color-emerald-300); }
   }
 }
 
-@media (prefers-color-scheme: light) {
-  body {
-    color: var(--color-dark);
-    background: var(--color-light);
-    font-family: Arial, Helvetica, sans-serif;
-  }
+:root {
+  color-scheme: dark;
+}
+
+body {
+  @apply bg-canvas text-neutral-200 antialiased;
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 }
