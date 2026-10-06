@@ -9,11 +9,6 @@ import { sessionToken } from "../session";
 
 export type Item = FunctionReturnType<typeof api.items.list>[number];
 export type Busy = "insert" | "delete" | null;
-export type Commands = { insert: (n: number) => void; del: () => void };
-
-// Each region block registers its actions here so the top bar can drive all regions.
-export const commands = new Map<string, Commands>();
-
 const EMPTY: Item[] = [];
 
 export function useRegionBench(region: Region, onResult: (id: string, patch: Results) => void) {
@@ -27,6 +22,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
   const run = useRef<{ kind: "insert" | "delete"; total: number; start: number; lat: number[] } | null>(null);
 
   const [latency, setLatency] = useState<Record<string, number>>({}); // key → sent → seen ms
+  const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order
   const [busy, setBusy] = useState<Busy>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -66,7 +62,10 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
         sent.current.delete(k);
       }
       if (r.lat.length > 0) {
-        if (isInsert) setLatency((prev) => ({ ...prev, ...seen }));
+        if (isInsert) {
+          setLatency((prev) => ({ ...prev, ...seen }));
+          setSeries([...r.lat]);
+        }
         setProgress({ done: r.lat.length, total: r.total });
       }
       settle.current(now);
@@ -106,6 +105,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     const count = Math.min(n, MAX - raw.length);
     if (count <= 0) return setError(`Delete first (max ${MAX} rows).`);
     begin("insert", count);
+    setSeries([]);
     for (let i = 0; i < count; i++) {
       const key = crypto.randomUUID();
       sent.current.set(key, performance.now());
@@ -129,7 +129,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     clear({ sessionToken }).catch(fail);
   };
 
-  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, busy, progress, error, insert, del };
+  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, series, busy, progress, error, insert, del };
 }
 
 export type Bench = ReturnType<typeof useRegionBench>;

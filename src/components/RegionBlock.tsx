@@ -1,38 +1,23 @@
-import { useEffect } from "react";
 import type { Region } from "../regions";
 import { cx, ms } from "../lib/format";
 import type { Results } from "../lib/stats";
-import { commands, useRegionBench } from "../hooks/useRegionBench";
+import type { Bench } from "../hooks/useRegionBench";
 import { useWithGhosts } from "../hooks/useWithGhosts";
 import { RowTable } from "./RowTable";
 import { TileGrid } from "./TileGrid";
 
 export function RegionBlock({
   region,
+  bench: b,
   results,
   fastest,
-  onResult,
-  onBusyChange,
 }: {
   region: Region;
+  bench: Bench;
   results?: Results;
   fastest: boolean;
-  onResult: (id: string, patch: Results) => void;
-  onBusyChange: (id: string, busy: boolean) => void;
 }) {
-  const b = useRegionBench(region, onResult);
   const rows = useWithGhosts(b.items, b.loaded);
-
-  const busy = b.busy !== null;
-  useEffect(() => {
-    onBusyChange(region.id, busy);
-    return () => onBusyChange(region.id, false);
-  }, [busy, region.id, onBusyChange]);
-
-  useEffect(() => {
-    commands.set(region.id, b);
-    return () => void commands.delete(region.id);
-  });
 
   const { insert: ins, delete: del } = results ?? {};
   const running = b.busy !== null && b.progress;

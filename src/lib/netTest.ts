@@ -8,7 +8,7 @@ const SAMPLES = 5;
 
 // Browser half of `npx convex network-test`: same /instance_name and /echo endpoints.
 // Standalone (not a hook) so it runs from any tab; reports progress as it goes.
-export async function runNetTest(region: Region, onProgress: (step: NetStep, net: Net) => void): Promise<Net> {
+export async function runNetTest(region: Region, onProgress: (step: NetStep, net: Net) => void): Promise<Required<Net>> {
   const net: Net = { wsSamples: [], httpSamples: [] };
   const report = (step: NetStep) => onProgress(step, { ...net, wsSamples: [...net.wsSamples], httpSamples: [...net.httpSamples] });
 
@@ -23,12 +23,12 @@ export async function runNetTest(region: Region, onProgress: (step: NetStep, net
     report("http");
   }
   report("echo-small");
-  net.echoSmall = await echo(region, 128);
+  const echoSmall = (net.echoSmall = await echo(region, 128));
   report("echo-big");
-  net.echoBig = await echo(region, ECHO_BIG);
-  net.mbps = ECHO_BIG / 1e6 / (net.echoBig / 1000);
+  const echoBig = (net.echoBig = await echo(region, ECHO_BIG));
+  const mbps = (net.mbps = ECHO_BIG / 1e6 / (echoBig / 1000));
   report("echo-big");
-  return net;
+  return { ...net, echoSmall, echoBig, mbps };
 }
 
 async function echo(region: Region, size: number) {

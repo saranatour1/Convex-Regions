@@ -96,11 +96,11 @@ export function NetworkView({ location, ready }: { location: ExitLocation | null
   );
 }
 
-const summarize = (net: Net) => ({
+const summarize = (net: Required<Net>) => ({
   kind: "done" as const,
   wsMs: median(net.wsSamples),
   httpMs: median(net.httpSamples),
-  echoSmallMs: net.echoSmall!,
-  echoBigMs: net.echoBig!,
-  mbps: net.mbps!,
+  echoSmallMs: net.echoSmall,
+  echoBigMs: net.echoBig,
+  mbps: net.mbps,
 });
