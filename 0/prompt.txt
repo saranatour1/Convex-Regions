@@ -1,0 +1,49 @@
+/ponytail:ponytail-review
+
+---
+
+Okay, can we use diagrams view to show which one is fastest too 
+add it under the same page
+
+---
+
+I don't think this works too!
+
+<pasted_content id="e0b8">
+import { v } from "convex/values";
+import { internalMutation } from "./_generated/server";
+
+// Internal: run from the CLI, e.g. `pnpm run block <handle>` (all regions).
+// Returns false if this region has never seen that handle.
+const setBlocked = (blocked: boolean) =>
+  internalMutation({
+    args: { handle: v.string(), reason: v.optional(v.string()) },
+    returns: v.boolean(),
+    handler: async (ctx, { handle, reason }) => {
+      const user = await ctx.db.query("users").withIndex("by_handle", (q) => q.eq("handle", handle)).unique();
+      if (!user) return false;
+      await ctx.db.patch("users", user._id, { blocked, blockedReason: blocked ? reason : undefined });
+      return true;
+    },
+  });
+
+export const block = setBlocked(true);
+export const unblock = setBlocked(false);
+</pasted_content id="e0b8">
+
+---
+
+<pasted_content id="e0b8">
+Uncaught TypeError: Cannot read properties of undefined (reading 'us')
+    at LatencyView.tsx:37:39
+    at Array.filter (<anonymous>)
+    at LatencyView (LatencyView.tsx:37:25)
+</pasted_content id="e0b8">
+
+---
+
+I want it to show one single graph of how much time it took, maybe using a line graph from somewhere online, like shadcn graph? and figure out how I want to have it running while watching the diagram update in real time
+
+---
+
+yes push
