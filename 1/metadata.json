@@ -1,0 +1,116 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M48ETF7CQRQV9CXMKEWKFC48",
+  "session_id": "67e2bebe-bf6e-4390-9bc7-4a1f5887b9c0",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T11:15:46.661885Z",
+  "branch": "feat/region-latency-demo",
+  "checkpoints_count": 1,
+  "save_step_count": 1,
+  "files_touched": [
+    "scripts/block.sh"
+  ],
+  "agent": "Cursor",
+  "model": "default",
+  "turn_id": "f28e95d760fc",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 46296,
+    "cache_creation_tokens": 0,
+    "cache_read_tokens": 0,
+    "output_tokens": 185,
+    "api_call_count": 1
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "prompt-skill-cursor-review-2026-10-06T11:13:58.88642Z",
+      "event_type": "prompt_invocation",
+      "skill": {
+        "name": "review"
+      },
+      "source": {
+        "agent": "cursor",
+        "signal": "prompt_slash_command",
+        "confidence": "explicit"
+      },
+      "turn_id": "a3a57b636e22",
+      "timestamp": "2026-10-06T11:13:58.88642Z",
+      "native": {
+        "command": "/review"
+      },
+      "collapse": {
+        "target": "user_message",
+        "label": "/review",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-06T11:15:46.658756Z",
+    "agent_lines": 0,
+    "agent_removed": 0,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 1,
+    "total_committed": 0,
+    "total_lines_changed": 1,
+    "agent_percentage": 0,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 925,
+      "user_lines_removed": 105,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/launch.json": 11,
+        "package.json": 4,
+        "pnpm-lock.yaml": 332,
+        "scripts/block.sh": 3,
+        "src/App.tsx": 32,
+        "src/components/BenchHost.tsx": 12,
+        "src/components/LatencyChart.tsx": 45,
+        "src/components/RegionBlock.tsx": 3,
+        "src/components/RunControls.tsx": 29,
+        "src/components/chart.tsx": 287,
+        "src/hooks/benchStore.ts": 21,
+        "src/hooks/useRegionBench.ts": 7,
+        "src/index.css": 9,
+        "src/lib/netTest.ts": 5,
+        "src/lib/utils.ts": 5,
+        "src/regions.ts": 6,
+        "src/views/CompareView.tsx": 86,
+        "src/views/LatencyView.tsx": 24,
+        "src/views/NetworkView.tsx": 4
+      },
+      "user_removed_per_file": {
+        "package.json": 1,
+        "pnpm-lock.yaml": 7,
+        "scripts/block.sh": 1,
+        "src/App.tsx": 2,
+        "src/components/RegionBlock.tsx": 18,
+        "src/hooks/useRegionBench.ts": 7,
+        "src/lib/netTest.ts": 5,
+        "src/regions.ts": 4,
+        "src/views/LatencyView.tsx": 56,
+        "src/views/NetworkView.tsx": 4
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 11,
+      "user_lines_removed": 0,
+      "agent_lines_added": 914,
+      "agent_lines_removed": 105,
+      "user_added_per_file": {
+        ".claude/launch.json": 11
+      }
+    }
+  ]
+}
