@@ -1,0 +1,261 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M48ETF7CQRQV9CXMKEWKFC48",
+  "session_id": "49073a56-6098-4eba-9da2-c911f1ab9912",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T11:15:46.578785Z",
+  "branch": "feat/region-latency-demo",
+  "checkpoints_count": 5,
+  "save_step_count": 4,
+  "files_touched": [
+    "scripts/block.sh"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "1936f7013d99",
+  "checkpoint_transcript_start": 1762,
+  "transcript_lines_at_start": 1762,
+  "compact_transcript_start": 287,
+  "token_usage": {
+    "input_tokens": 100,
+    "cache_creation_tokens": 110935,
+    "cache_read_tokens": 26727658,
+    "output_tokens": 52579,
+    "api_call_count": 50,
+    "subagent_tokens": {
+      "input_tokens": 0,
+      "cache_creation_tokens": 0,
+      "cache_read_tokens": 0,
+      "output_tokens": 0,
+      "api_call_count": 0
+    }
+  },
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "claude-skill-toolu_01X95Vk3X4cUgEcMK84T9MR5",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "convex"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "97137fe2a483",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 167,
+        "end": 168,
+        "entry_ids": [
+          "50ebf4a1-2e24-4d0d-a01f-12f32e949469"
+        ],
+        "tool_use_id": "toolu_01X95Vk3X4cUgEcMK84T9MR5"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01X95Vk3X4cUgEcMK84T9MR5"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: convex",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01CPmQx4Uo647sNmE1c3zkDQ",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "convex-expert"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "97137fe2a483",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 194,
+        "end": 195,
+        "entry_ids": [
+          "7ef541cf-0e99-4a4c-baac-0f6f84482cb3"
+        ],
+        "tool_use_id": "toolu_01CPmQx4Uo647sNmE1c3zkDQ"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01CPmQx4Uo647sNmE1c3zkDQ"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: convex-expert",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_012QYqRfiGwXe5NTsHr4qVo1",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "convex-deploy-guard"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "97137fe2a483",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 254,
+        "end": 255,
+        "entry_ids": [
+          "3173ea04-de20-497b-b047-f721f6f2e305"
+        ],
+        "tool_use_id": "toolu_012QYqRfiGwXe5NTsHr4qVo1"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_012QYqRfiGwXe5NTsHr4qVo1"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: convex-deploy-guard",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "prompt-skill-claude-code-ponytail:ponytail-review-2026-10-06T10:30:20.892034Z",
+      "event_type": "prompt_invocation",
+      "skill": {
+        "name": "ponytail:ponytail-review"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "prompt_slash_command",
+        "confidence": "explicit"
+      },
+      "turn_id": "3d3110fd6853",
+      "timestamp": "2026-10-06T10:30:20.892034Z",
+      "native": {
+        "command": "/ponytail:ponytail-review"
+      },
+      "collapse": {
+        "target": "user_message",
+        "label": "/ponytail:ponytail-review",
+        "default_collapsed": true
+      }
+    },
+    {
+      "id": "claude-skill-toolu_01Acf8TJckbrW5J83rAyjRpX",
+      "event_type": "tool_invocation",
+      "skill": {
+        "name": "dataviz"
+      },
+      "source": {
+        "agent": "claude-code",
+        "signal": "skill_tool_use",
+        "confidence": "explicit"
+      },
+      "turn_id": "1936f7013d99",
+      "transcript_anchor": {
+        "unit": "line",
+        "start": 1810,
+        "end": 1811,
+        "entry_ids": [
+          "5e7e28b6-cc2d-49aa-85f9-e04d74c75791"
+        ],
+        "tool_use_id": "toolu_01Acf8TJckbrW5J83rAyjRpX"
+      },
+      "native": {
+        "tool_name": "Skill",
+        "tool_use_id": "toolu_01Acf8TJckbrW5J83rAyjRpX"
+      },
+      "collapse": {
+        "target": "tool_pair",
+        "label": "Skill: dataviz",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 30
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-06T11:15:46.404733Z",
+    "agent_lines": 3,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 3,
+    "total_lines_changed": 4,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 1,
+      "user_lines_added": 14,
+      "user_lines_removed": 3,
+      "agent_lines_added": 0,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/launch.json": 11,
+        "src/views/NetworkView.tsx": 3
+      },
+      "user_removed_per_file": {
+        "src/views/NetworkView.tsx": 3
+      }
+    },
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 36,
+      "user_lines_removed": 21,
+      "agent_lines_added": 3,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".claude/launch.json": 11,
+        "src/lib/netTest.ts": 5,
+        "src/views/LatencyView.tsx": 9,
+        "src/views/NetworkView.tsx": 11
+      },
+      "user_removed_per_file": {
+        "src/lib/netTest.ts": 5,
+        "src/views/LatencyView.tsx": 14,
+        "src/views/NetworkView.tsx": 2
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 11,
+      "user_lines_removed": 0,
+      "agent_lines_added": 31,
+      "agent_lines_removed": 25,
+      "user_added_per_file": {
+        ".claude/launch.json": 11
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 11,
+      "user_lines_removed": 0,
+      "agent_lines_added": 187,
+      "agent_lines_removed": 28,
+      "user_added_per_file": {
+        ".claude/launch.json": 11
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 11,
+      "user_lines_removed": 0,
+      "agent_lines_added": 914,
+      "agent_lines_removed": 105,
+      "user_added_per_file": {
+        ".claude/launch.json": 11
+      }
+    }
+  ]
+}
