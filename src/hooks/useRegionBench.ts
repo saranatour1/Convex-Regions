@@ -2,7 +2,8 @@ import { useEffect, useRef, useState } from "react";
 import { useConvex, useMutation, useQuery } from "convex/react";
 import type { FunctionReturnType } from "convex/server";
 import { api } from "../../convex/_generated/api";
-import { MAX, type Region } from "../regions";
+import type { Id } from "../../convex/_generated/dataModel";
+import type { Region } from "../regions";
 import { stats, type Results } from "../lib/stats";
 import { describe, isRateLimited } from "../lib/errors";
 import { sessionToken } from "../session";
@@ -21,7 +22,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
   const sent = useRef(new Map<string, number>());
   const run = useRef<{ kind: "insert" | "delete"; total: number; start: number; lat: number[] } | null>(null);
 
-  const [latency, setLatency] = useState<Record<string, number>>({}); // key → sent → seen ms
+  const [latency, setLatency] = useState<Record<string, number>>({}); // key → browser sent → seen ms (this tab)
   const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order
   const [busy, setBusy] = useState<Busy>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
@@ -43,31 +44,23 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     };
   });
 
-  // Timestamp changes when the client receives them, not after React renders.
+  // Deletes: timestamp rows leaving the list when the client receives the update,
+  // not after React renders. (Inserts are timed by their mutation promise below.)
   useEffect(() => {
     const watch = convex.watchQuery(api.items.list, {});
     const pending = sent.current; // same Map for the hook's lifetime
     const unsubscribe = watch.onUpdate(() => {
       const r = run.current;
       const list = watch.localQueryResult();
-      if (!r || !list) return;
+      if (r?.kind !== "delete" || !list) return;
       const now = performance.now();
-      const isInsert = r.kind === "insert";
-      const present = new Set(list.map((i) => (isInsert ? i.key : i._id)));
-      const seen: Record<string, number> = {};
-      for (const [k, sentAt] of sent.current) {
-        if (present.has(k) !== isInsert) continue;
-        seen[k] = now - sentAt;
-        r.lat.push(seen[k]);
-        sent.current.delete(k);
+      const present = new Set(list.map((i) => i._id));
+      for (const [id, sentAt] of sent.current) {
+        if (present.has(id as Id<"items">)) continue;
+        r.lat.push(now - sentAt);
+        sent.current.delete(id);
       }
-      if (r.lat.length > 0) {
-        if (isInsert) {
-          setLatency((prev) => ({ ...prev, ...seen }));
-          setSeries([...r.lat]);
-        }
-        setProgress({ done: r.lat.length, total: r.total });
-      }
+      if (r.lat.length > 0) setProgress({ done: r.lat.length, total: r.total });
       settle.current(now);
     });
     return () => {
@@ -98,18 +91,30 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     run.current = { kind, total, start: performance.now(), lat: [] };
   };
 
-  // ponytail: the Convex client runs one client's mutations in order, so with N
-  // in flight the later ones include queueing. That's what a real client sees.
+  // A Convex mutation resolves only once this client's query results include the
+  // write, so sent → resolved is exactly "until it shows up", and doesn't depend on
+  // whether the row is inside the list window or on how big the table is.
+  // ponytail: one client's mutations run in order, so with N in flight the later ones
+  // include queueing. Same N in every region, and it's what a real client sees.
   const insert = (n: number) => {
     if (run.current || raw === undefined) return;
-    const count = Math.min(n, MAX - raw.length);
-    if (count <= 0) return setError(`Delete first (max ${MAX} rows).`);
-    begin("insert", count);
+    begin("insert", n);
     setSeries([]);
-    for (let i = 0; i < count; i++) {
+    for (let i = 0; i < n; i++) {
       const key = crypto.randomUUID();
-      sent.current.set(key, performance.now());
-      add({ key, sessionToken }).catch((e: unknown) => {
+      const sentAt = performance.now();
+      sent.current.set(key, sentAt);
+      add({ key, sessionToken }).then(() => {
+        const now = performance.now();
+        const r = run.current;
+        if (!r || !sent.current.delete(key)) return; // run was cancelled
+        const t = now - sentAt;
+        r.lat.push(t);
+        setLatency((prev) => ({ ...prev, [key]: t }));
+        setSeries([...r.lat]);
+        setProgress({ done: r.lat.length, total: r.total });
+        settle.current(now);
+      }, (e: unknown) => {
         if (!isRateLimited(e)) return fail(e);
         // Over the limit: show why, drop this write from the run, keep the rest.
         setError(describe(e));
