@@ -1,0 +1,34 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M48B52G04PWC98YAW8GNS77V",
+  "strategy": "manual-commit",
+  "branch": "feat/region-latency-demo",
+  "checkpoints_count": 25,
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 480,
+    "cache_creation_tokens": 442653,
+    "cache_read_tokens": 66579866,
+    "output_tokens": 227044,
+    "api_call_count": 240,
+    "subagent_tokens": {
+      "input_tokens": 16,
+      "cache_creation_tokens": 46479,
+      "cache_read_tokens": 92381,
+      "output_tokens": 3367,
+      "api_call_count": 8
+    }
+  }
+}
