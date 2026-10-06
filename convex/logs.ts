@@ -1,5 +1,5 @@
 import { ConvexError, v } from "convex/values";
-import { mutation } from "./_generated/server";
+import { env, mutation } from "./_generated/server";
 import { rateLimiter } from "./rateLimits";
 import { requireSession } from "./sessions";
 
@@ -16,7 +16,7 @@ export const netTestBegin = mutation({
   handler: async (ctx, { sessionToken, region, country, colo }) => {
     const { user, session } = await requireSession(ctx, sessionToken);
     if (!REGIONS.has(region)) throw new ConvexError({ kind: "BadInput" as const });
-    await rateLimiter.limit(ctx, "netTests", { key: user._id, throws: true });
+    if (!env.PAUSE_RATE_LIMITS) await rateLimiter.limit(ctx, "netTests", { key: user._id, throws: true });
     return await ctx.db.insert("netTests", {
       userId: user._id,
       sessionId: session._id,
