@@ -1,0 +1,40 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M48ETHJ13NPA66JY4MWWHZJP",
+  "strategy": "manual-commit",
+  "branch": "feat/region-latency-demo",
+  "checkpoints_count": 5,
+  "files_touched": [
+    "src/App.tsx",
+    "src/components/BenchHost.tsx",
+    "src/components/LatencyChart.tsx",
+    "src/components/RegionBlock.tsx",
+    "src/components/RunControls.tsx",
+    "src/components/chart.tsx",
+    "src/hooks/benchStore.ts",
+    "src/hooks/useRegionBench.ts",
+    "src/index.css",
+    "src/lib/netTest.ts",
+    "src/lib/utils.ts",
+    "src/regions.ts",
+    "src/views/CompareView.tsx",
+    "src/views/LatencyView.tsx",
+    "src/views/NetworkView.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 588,
+    "cache_creation_tokens": 557254,
+    "cache_read_tokens": 95172119,
+    "output_tokens": 281487,
+    "api_call_count": 294
+  }
+}
