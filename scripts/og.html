@@ -15,10 +15,16 @@
       .line { position: absolute; background: #3a3a3a; }
       .v { top: 0; bottom: 0; width: 1px; }
       .h { left: 0; right: 0; height: 1px; }
-      .content { position: absolute; left: 130px; top: 175px; }
+      .brand {
+        position: absolute; left: 130px; top: 104px;
+        display: flex; align-items: center; gap: 14px;
+        font-size: 30px; font-weight: 600; letter-spacing: -0.5px;
+      }
+      .brand img { width: 40px; height: 40px; }
+      .content { position: absolute; left: 130px; top: 200px; }
       h1 { font-size: 84px; font-weight: 700; letter-spacing: -2.5px; line-height: 1; }
       p {
-        margin-top: 56px;
+        margin-top: 44px;
         max-width: 620px;
         font-size: 36px;
         line-height: 1.6;
@@ -39,6 +45,8 @@
     <div class="line v" style="left: 1135px"></div>
     <div class="line h" style="top: 64px"></div>
     <div class="line h" style="top: 565px"></div>
+
+    <div class="brand"><img src="../public/convex.svg" alt="" />Convex</div>
 
     <div class="content">
       <h1>Region Latency</h1>
