@@ -174,3 +174,10 @@ can you pause the rate limits for now, so I'm able to test it properly
 ---
 
 is till don't see the server calls, or the numbers anymore
+
+---
+
+send the datat the convex static hosting, and add them down in the same PR as this one, 
+make sure to be diligent 
+
+Send me the lines where there was changes to the server time, and the median time
