@@ -8,16 +8,19 @@ export function TileGrid({ rows, latency }: { rows: Shown[]; latency: Record<str
   }
   return (
     <div className="flex max-h-24 min-h-0 shrink-0 flex-wrap content-start gap-1 overflow-hidden">
-      {[...rows].reverse().map((t) => (
-        <span
-          key={t._id}
-          title={latency[t.key] === undefined ? undefined : ms(latency[t.key])}
-          className={cx(
-            "size-3 rounded-[3px] motion-reduce:animate-none",
-            t.ghost ? "bg-red-500 animate-vanish" : cx(tone(latency[t.key]), "animate-pop"),
-          )}
-        />
-      ))}
+      {[...rows].reverse().map((t) => {
+        const l = t.serverMs ?? latency[t.key]; // dashboard execution time, else this tab's browser time
+        return (
+          <span
+            key={t._id}
+            title={l === undefined ? undefined : `${ms(l)} (${t.serverMs === undefined ? "browser" : "server"})`}
+            className={cx(
+              "size-3 rounded-[3px] motion-reduce:animate-none",
+              t.ghost ? "bg-red-500 animate-vanish" : cx(tone(l), "animate-pop"),
+            )}
+          />
+        );
+      })}
     </div>
   );
 }

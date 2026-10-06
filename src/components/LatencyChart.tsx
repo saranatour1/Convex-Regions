@@ -15,8 +15,10 @@ export function LatencyChart({ benches }: { benches: Benches }) {
     ...Object.fromEntries(REGIONS.map((r) => [r.id, roundOrUndefined(benches[r.id]?.series[i])])),
   }));
 
+  // Fills its positioned parent: ResponsiveContainer needs a definite height, and a % height
+  // in the flex column resolves to 0 when the page scrolls (narrow windows).
   return (
-    <ChartContainer config={config} className="aspect-auto h-full min-h-64 w-full">
+    <ChartContainer config={config} className="absolute inset-0 aspect-auto">
       <LineChart data={data} margin={{ top: 12, right: 16, bottom: 4, left: 4 }}>
         <CartesianGrid vertical={false} />
         <XAxis dataKey="write" tickLine={false} axisLine={false} tickMargin={8} minTickGap={24} />

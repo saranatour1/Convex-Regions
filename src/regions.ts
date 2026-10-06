@@ -16,4 +16,4 @@ export const REGIONS = [
 
 export type Region = (typeof REGIONS)[number];
 
-export const MAX = 1000; // matches take(1000) in convex/items.ts
+export const WINDOW = 100; // matches WINDOW in convex/items.ts
