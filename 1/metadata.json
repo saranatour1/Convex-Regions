@@ -1,0 +1,59 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M48ETGFY69MTHDRWWVK6YTNZ",
+  "session_id": "67e2bebe-bf6e-4390-9bc7-4a1f5887b9c0",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-06T11:15:47.771136Z",
+  "branch": "feat/region-latency-demo",
+  "checkpoints_count": 1,
+  "files_touched": [
+    "package.json",
+    "pnpm-lock.yaml"
+  ],
+  "agent": "Cursor",
+  "model": "default",
+  "turn_id": "f28e95d760fc",
+  "checkpoint_transcript_start": 4,
+  "transcript_lines_at_start": 4,
+  "compact_transcript_start": 3,
+  "skill_events_version": 1,
+  "skill_events": [
+    {
+      "id": "prompt-skill-cursor-review-2026-10-06T11:13:58.88642Z",
+      "event_type": "prompt_invocation",
+      "skill": {
+        "name": "review"
+      },
+      "source": {
+        "agent": "cursor",
+        "signal": "prompt_slash_command",
+        "confidence": "explicit"
+      },
+      "turn_id": "a3a57b636e22",
+      "timestamp": "2026-10-06T11:13:58.88642Z",
+      "native": {
+        "command": "/review"
+      },
+      "collapse": {
+        "target": "user_message",
+        "label": "/review",
+        "default_collapsed": true
+      }
+    }
+  ],
+  "session_metrics": {
+    "turn_count": 1
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-06T11:15:47.767108Z",
+    "agent_lines": 336,
+    "agent_removed": 8,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 336,
+    "total_lines_changed": 344,
+    "agent_percentage": 100,
+    "metric_version": 2
+  }
+}
