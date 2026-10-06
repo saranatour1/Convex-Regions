@@ -4,6 +4,8 @@ import type { Shown } from "../hooks/useWithGhosts";
 const VISIBLE = 40; // more than fits; the block clips the rest
 
 // Newest rows on top, like the Convex data view.
+// Time column: items:add execution time from the dashboard logs (log stream webhook) once it
+// arrives; until then, this tab's browser-measured time, tagged "browser".
 export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<string, number> }) {
   const recent = rows.slice(-VISIBLE).reverse();
   return (
@@ -13,12 +15,13 @@ export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<str
           <tr className="[&>th]:border-b [&>th]:border-line [&>th]:px-3 [&>th]:py-1.5 [&>th]:font-normal">
             <th>_id</th>
             <th>key</th>
-            <th className="w-24 text-right">latency</th>
+            <th className="w-36 text-right" title="Server: items:add execution time from the Convex dashboard logs. Browser: time until the write showed up in this tab.">time</th>
           </tr>
         </thead>
         <tbody>
           {recent.map((r) => {
-            const t = latency[r.key];
+            const t = r.serverMs ?? latency[r.key];
+            const browser = r.serverMs === undefined && t !== undefined;
             return (
               <tr
                 key={r._id}
@@ -31,6 +34,9 @@ export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<str
                 <td className="text-muted">{r.key}</td>
                 <td className="text-right tabular-nums">
                   <span className="inline-flex items-center gap-1.5">
+                    {t !== undefined && (
+                      <span className="text-[10px] uppercase tracking-wide text-muted">{browser ? "browser" : "server"}</span>
+                    )}
                     {t === undefined ? "—" : ms(t)}
                     <span className={cx("size-2 rounded-[2px]", r.ghost ? "bg-red-500" : tone(t))} />
                   </span>

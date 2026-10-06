@@ -12,11 +12,13 @@
     "push:all": "cp .env.local .env.bak.local && for d in ardent-kingfisher-453 wooden-ocelot-218 insightful-crane-62 curious-hyena-917; do CONVEX_DEPLOYMENT=dev:$d convex dev --once || break; done; mv .env.bak.local .env.local",
     "nettest": "for r in us eu au ca; do echo \"== dev/$r\"; convex network-test --deployment dev/$r; done",
     "og": "\"/Applications/Google Chrome.app/Contents/MacOS/Google Chrome\" --headless=new --log-level=3 --disable-gpu --hide-scrollbars --force-device-scale-factor=1 --window-size=1200,630 --screenshot=public/og.png \"file://$PWD/scripts/og.html\"",
-    "block": "sh scripts/block.sh"
+    "block": "sh scripts/block.sh",
+    "deploy:site": "convex dev --once && static-hosting upload --build"
   },
   "dependencies": {
     "@convex-dev/batch-worker": "^0.3.4",
     "@convex-dev/rate-limiter": "^0.4.0",
+    "@convex-dev/static-hosting": "^0.2.1",
     "clsx": "^2.1.1",
     "convex": "^1.44.0",
     "react": "^19.2.8",
