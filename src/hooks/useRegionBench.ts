@@ -26,11 +26,17 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
 
   // key (insert) or _id (delete) → performance.now() when the mutation was sent
   const sent = useRef(new Map<string, number>());
-  const run = useRef<{ kind: "insert" | "delete"; total: number; start: number; lat: number[] } | null>(null);
+  const run = useRef<{
+    kind: "insert" | "delete";
+    total: number;
+    start: number;
+    lat: number[];
+    serverLat: number[];
+  } | null>(null);
 
   const [latency, setLatency] = useState<Record<string, number>>({}); // key → browser sent → seen ms (this tab)
   const [stamps, setStamps] = useState<Record<string, Stamps>>({}); // key → server/browser timeline
-  const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order
+  const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order (browser E2E)
   const [busy, setBusy] = useState<Busy>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -43,8 +49,14 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
       const r = run.current;
       if (!r || sent.current.size > 0) return;
       if (r.lat.length > 0) {
-        const s = stats(r.lat, now - r.start);
-        onResult(region.id, r.kind === "insert" ? { insert: s } : { delete: s });
+        const wall = now - r.start;
+        if (r.kind === "insert") {
+          const patch: Results = { insert: stats(r.lat, wall) };
+          if (r.serverLat.length > 0) patch.insertServer = stats(r.serverLat, wall);
+          onResult(region.id, patch);
+        } else {
+          onResult(region.id, { delete: stats(r.lat, wall) });
+        }
       }
       run.current = null;
       setBusy(null);
@@ -95,7 +107,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     setBusy(kind);
     setProgress({ done: 0, total });
     sent.current.clear();
-    run.current = { kind, total, start: performance.now(), lat: [] };
+    run.current = { kind, total, start: performance.now(), lat: [], serverLat: [] };
   };
 
   // A Convex mutation resolves only once this client's query results include the
@@ -103,6 +115,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
   // whether the row is inside the list window or on how big the table is.
   // ponytail: one client's mutations run in order, so with N in flight the later ones
   // include queueing. Same N in every region, and it's what a real client sees.
+  // Primary UI median uses same-clock serverSpan = listRanAt − startedAt when both exist.
   const insert = (n: number) => {
     if (run.current || raw === undefined) return;
     begin("insert", n);
@@ -122,6 +135,10 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
         if (!r || !sent.current.delete(key)) return; // run was cancelled
         const t = now - sentAt;
         r.lat.push(t);
+        if (typeof listRanAt === "number") {
+          const serverSpan = listRanAt - startedAt;
+          if (serverSpan >= 0) r.serverLat.push(serverSpan);
+        }
         setLatency((prev) => ({ ...prev, [key]: t }));
         setSeries([...r.lat]);
         setProgress({ done: r.lat.length, total: r.total });

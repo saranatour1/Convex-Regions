@@ -1,6 +1,6 @@
 import { REGIONS } from "../regions";
 import { cx, ms } from "../lib/format";
-import type { Results } from "../lib/stats";
+import { primaryInsert, type Results } from "../lib/stats";
 import { useBenches } from "../hooks/benchStore";
 import { LatencyChart } from "../components/LatencyChart";
 import { RunControls } from "../components/RunControls";
@@ -18,9 +18,11 @@ export function CompareView({
   results: Record<string, Results | undefined>;
 }) {
   const benches = useBenches();
-  const timed = REGIONS.filter((r) => results[r.id]?.insert);
+  const timed = REGIONS.filter((r) => primaryInsert(results[r.id]));
   const fastest =
-    timed.length > 1 ? timed.reduce((a, b) => (results[a.id]!.insert!.p50 <= results[b.id]!.insert!.p50 ? a : b)).id : null;
+    timed.length > 1
+      ? timed.reduce((a, b) => (primaryInsert(results[a.id])!.p50 <= primaryInsert(results[b.id])!.p50 ? a : b)).id
+      : null;
   const empty = REGIONS.every((r) => !benches[r.id]?.series.length);
 
   return (
@@ -35,7 +37,8 @@ export function CompareView({
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {REGIONS.map((r) => {
             const b = benches[r.id];
-            const ins = results[r.id]?.insert;
+            const primary = primaryInsert(results[r.id]);
+            const e2e = results[r.id]?.insert;
             const running = b?.busy === "insert" && b.progress;
             return (
               <li
@@ -53,9 +56,14 @@ export function CompareView({
                 <span className="font-mono text-xs tabular-nums text-muted">
                   {running ? (
                     `${b.progress!.done} / ${b.progress!.total} seen…`
-                  ) : ins ? (
+                  ) : primary ? (
                     <>
-                      median <b className="font-normal text-neutral-100">{ms(ins.p50)}</b> · all {ms(ins.total)}
+                      median <b className="font-normal text-neutral-100">{ms(primary.p50)}</b>
+                      {e2e && results[r.id]?.insertServer ? (
+                        <> · browser {ms(e2e.p50)}</>
+                      ) : (
+                        <> · all {ms(e2e?.total ?? primary.total)}</>
+                      )}
                     </>
                   ) : (
                     "no run yet"

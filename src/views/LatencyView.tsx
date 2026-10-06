@@ -1,6 +1,6 @@
 import { REGIONS } from "../regions";
 import { TONES, cx } from "../lib/format";
-import type { Results } from "../lib/stats";
+import { primaryInsert, type Results } from "../lib/stats";
 import { useBenches } from "../hooks/benchStore";
 import { RegionBlock } from "../components/RegionBlock";
 import { RunControls } from "../components/RunControls";
@@ -19,11 +19,12 @@ export function LatencyView({
 }) {
   const benches = useBenches();
 
-
-  // Fastest = lowest median write → seen, once at least 2 regions have run.
-  const timed = REGIONS.filter((r) => results[r.id]?.insert);
+  // Fastest = lowest primary median (server span when present, else browser E2E).
+  const timed = REGIONS.filter((r) => primaryInsert(results[r.id]));
   const fastest =
-    timed.length > 1 ? timed.reduce((a, b) => (results[a.id]!.insert!.p50 <= results[b.id]!.insert!.p50 ? a : b)).id : null;
+    timed.length > 1
+      ? timed.reduce((a, b) => (primaryInsert(results[a.id])!.p50 <= primaryInsert(results[b.id])!.p50 ? a : b)).id
+      : null;
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
