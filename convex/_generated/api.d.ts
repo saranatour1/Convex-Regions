@@ -9,6 +9,7 @@
  */
 
 import type * as admin from "../admin.js";
+import type * as bulb from "../bulb.js";
 import type * as http from "../http.js";
 import type * as items from "../items.js";
 import type * as logs from "../logs.js";
@@ -24,6 +25,7 @@ import type {
 
 declare const fullApi: ApiFromModules<{
   admin: typeof admin;
+  bulb: typeof bulb;
   http: typeof http;
   items: typeof items;
   logs: typeof logs;

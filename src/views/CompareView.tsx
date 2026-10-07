@@ -1,6 +1,6 @@
 import { REGIONS } from "../regions";
 import { cx, ms } from "../lib/format";
-import type { Results } from "../lib/stats";
+import { fastestRegion, primaryInsert, type Results } from "../lib/stats";
 import { useBenches } from "../hooks/benchStore";
 import { LatencyChart } from "../components/LatencyChart";
 import { RunControls } from "../components/RunControls";
@@ -18,15 +18,13 @@ export function CompareView({
   results: Record<string, Results | undefined>;
 }) {
   const benches = useBenches();
-  const timed = REGIONS.filter((r) => results[r.id]?.insert);
-  const fastest =
-    timed.length > 1 ? timed.reduce((a, b) => (results[a.id]!.insert!.p50 <= results[b.id]!.insert!.p50 ? a : b)).id : null;
+  const fastest = fastestRegion(results); // lowest median network time, see lib/stats
   const empty = REGIONS.every((r) => !benches[r.id]?.series.length);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2">
-        <span className="mr-auto text-[13px] text-muted">Each write's time until it shows up here, by region, in arrival order.</span>
+        <span className="mr-auto text-[13px] text-muted">Each write's round trip (send → visible here), by region, in arrival order.</span>
         <RunControls n={n} setN={setN} ready={ready} />
       </div>
 
@@ -35,7 +33,8 @@ export function CompareView({
         <ul className="grid grid-cols-2 gap-3 md:grid-cols-4">
           {REGIONS.map((r) => {
             const b = benches[r.id];
-            const ins = results[r.id]?.insert;
+            const primary = primaryInsert(results[r.id]);
+            const e2e = results[r.id]?.insert;
             const running = b?.busy === "insert" && b.progress;
             return (
               <li
@@ -53,9 +52,15 @@ export function CompareView({
                 <span className="font-mono text-xs tabular-nums text-muted">
                   {running ? (
                     `${b.progress!.done} / ${b.progress!.total} seen…`
-                  ) : ins ? (
+                  ) : primary ? (
                     <>
-                      median <b className="font-normal text-neutral-100">{ms(ins.p50)}</b> · all {ms(ins.total)}
+                      {results[r.id]?.insertServer ? "inside Convex" : "round trip"}{" "}
+                      <b className="font-normal text-neutral-100">{ms(primary.p50)}</b>
+                      {e2e && results[r.id]?.insertServer ? (
+                        <> · round trip {ms(e2e.p50)}</>
+                      ) : (
+                        <> · all {ms(e2e?.total ?? primary.total)}</>
+                      )}
                     </>
                   ) : (
                     "no run yet"
@@ -68,7 +73,7 @@ export function CompareView({
 
         <section className="relative flex min-h-0 flex-1 flex-col rounded-lg border border-line bg-panel p-4">
           <header className="mb-2 flex items-baseline justify-between gap-3">
-            <h2 className="text-sm font-medium text-neutral-100">Time until each write shows up</h2>
+            <h2 className="text-sm font-medium text-neutral-100">Round trip per write (send → visible)</h2>
             <span className="text-xs text-muted">x: write # (arrival order) · y: ms</span>
           </header>
           <div className="relative min-h-64 flex-1">

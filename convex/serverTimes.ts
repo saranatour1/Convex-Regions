@@ -30,3 +30,23 @@ export const ingest = internalMutation({
     return null;
   },
 });
+
+// Called by scripts/sync-logs.mjs (CLI auth) with times it read from `convex logs`:
+// addMs = items:add execution; listMs / listCached = the list run that delivered the row.
+export const record = internalMutation({
+  args: {
+    rows: v.array(
+      v.object({ itemId: v.string(), addMs: v.number(), listMs: v.optional(v.number()), listCached: v.optional(v.number()) }),
+    ),
+  },
+  returns: v.null(),
+  handler: async (ctx, { rows }) => {
+    for (const { itemId, addMs, listMs, listCached } of rows) {
+      const id = ctx.db.normalizeId("items", itemId);
+      const item = id && (await ctx.db.get("items", id));
+      if (!item) continue; // deleted since
+      await ctx.db.patch("items", item._id, { serverMs: item.serverMs ?? addMs, listMs, listCached });
+    }
+    return null;
+  },
+});
