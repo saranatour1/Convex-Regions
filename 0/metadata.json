@@ -1,0 +1,186 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M4ASRYXMW8J6ZRJCEEEM45YZ",
+  "session_id": "5a44e56a-36b8-4d08-a7ea-a7150ca43b86",
+  "strategy": "manual-commit",
+  "created_at": "2026-10-07T09:05:40.144516Z",
+  "branch": "feat/server-timestamps",
+  "checkpoints_count": 19,
+  "save_step_count": 13,
+  "files_touched": [
+    "convex/rateLimits.ts"
+  ],
+  "agent": "Claude Code",
+  "model": "claude-opus-5-5",
+  "turn_id": "212b2a110ef7",
+  "compact_transcript_start": 0,
+  "token_usage": {
+    "input_tokens": 670,
+    "cache_creation_tokens": 899535,
+    "cache_read_tokens": 94296374,
+    "output_tokens": 213476,
+    "api_call_count": 335
+  },
+  "session_metrics": {
+    "turn_count": 54
+  },
+  "initial_attribution": {
+    "calculated_at": "2026-10-07T09:05:40.022907Z",
+    "agent_lines": 2,
+    "agent_removed": 1,
+    "human_added": 0,
+    "human_modified": 0,
+    "human_removed": 0,
+    "total_committed": 2,
+    "total_lines_changed": 3,
+    "agent_percentage": 100,
+    "metric_version": 2
+  },
+  "prompt_attributions": [
+    {
+      "checkpoint_number": 2,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 375,
+      "agent_lines_removed": 0,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 3,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 551,
+      "agent_lines_removed": 3,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 4,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 588,
+      "agent_lines_removed": 21,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 5,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 588,
+      "agent_lines_removed": 21,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 6,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 588,
+      "agent_lines_removed": 21,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 7,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 590,
+      "agent_lines_removed": 22,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 8,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 590,
+      "agent_lines_removed": 22,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 9,
+      "user_lines_added": 12,
+      "user_lines_removed": 13,
+      "agent_lines_added": 590,
+      "agent_lines_removed": 22,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      },
+      "user_removed_per_file": {
+        "convex/items.ts": 13
+      }
+    },
+    {
+      "checkpoint_number": 10,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 597,
+      "agent_lines_removed": 36,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 11,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 597,
+      "agent_lines_removed": 36,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 12,
+      "user_lines_added": 29,
+      "user_lines_removed": 16,
+      "agent_lines_added": 597,
+      "agent_lines_removed": 36,
+      "user_added_per_file": {
+        ".claude/launch.json": 12,
+        "src/components/RegionBlock.tsx": 5,
+        "src/components/RowTable.tsx": 3,
+        "src/components/TileGrid.tsx": 2,
+        "src/views/CompareView.tsx": 5,
+        "src/views/LatencyView.tsx": 2
+      },
+      "user_removed_per_file": {
+        "src/components/RegionBlock.tsx": 5,
+        "src/components/RowTable.tsx": 3,
+        "src/components/TileGrid.tsx": 2,
+        "src/views/CompareView.tsx": 4,
+        "src/views/LatencyView.tsx": 2
+      }
+    },
+    {
+      "checkpoint_number": 13,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 608,
+      "agent_lines_removed": 45,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    },
+    {
+      "checkpoint_number": 14,
+      "user_lines_added": 12,
+      "user_lines_removed": 0,
+      "agent_lines_added": 595,
+      "agent_lines_removed": 45,
+      "user_added_per_file": {
+        ".claude/launch.json": 12
+      }
+    }
+  ]
+}
