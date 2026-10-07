@@ -55,8 +55,10 @@ export default function App() {
     <div className="flex min-h-screen flex-col md:h-screen">
       <header className="flex flex-wrap items-center gap-2 border-b border-line bg-panel px-4 py-2.5">
         <nav className="mr-auto flex flex-wrap items-center gap-1.5 text-[13px] text-muted">
-          <img src="/convex.svg" alt="Convex" className="mr-0.5 size-4" />
-          <span>demo-regions</span>
+          <a href="https://convex.dev" target="_blank" rel="noopener noreferrer" title="convex.dev" className="group mr-0.5">
+            <img src="/convex.svg" alt="Convex" className="size-4 motion-safe:group-hover:animate-spin" />
+          </a>
+          <span>convex-regions</span>
           <ChevronIcon />
           <span className="font-mono text-neutral-200">items</span>
           <span className="ml-2">

@@ -31,9 +31,6 @@
         color: #a3a3a3;
         letter-spacing: 0.2px;
       }
-      /* Mark: the app's latency scale, fast → slow. */
-      .mark { position: absolute; right: 102px; bottom: 102px; display: grid; grid-template-columns: repeat(2, 16px); gap: 6px; }
-      .mark span { width: 16px; height: 16px; border-radius: 3px; }
       .codes {
         position: absolute; left: 130px; bottom: 100px;
         font: 22px ui-monospace, "SF Mono", Menlo, monospace; color: #6b6b6b; letter-spacing: 1px;
@@ -49,17 +46,11 @@
     <div class="brand"><img src="../public/convex.svg" alt="" />Convex</div>
 
     <div class="content">
-      <h1>Region Latency</h1>
+      <h1>convex-regions</h1>
       <p>How fast a Convex write shows up in four regions, live.</p>
     </div>
 
     <div class="codes">iad · dub · syd · yul</div>
 
-    <div class="mark" aria-hidden="true">
-      <span style="background: #34d399"></span>
-      <span style="background: #bef264"></span>
-      <span style="background: #fbbf24"></span>
-      <span style="background: #f43f5e"></span>
-    </div>
   </body>
 </html>

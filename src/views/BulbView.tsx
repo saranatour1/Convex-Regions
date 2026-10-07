@@ -7,6 +7,12 @@ import { describe } from "../lib/errors";
 import { cx, ms } from "../lib/format";
 
 type BulbState = { on: boolean; flipId: string; flippedAt: number };
+// From the logs (scripts/sync-logs.mjs): bulb:set time, and the bulb:get re-run that delivered it.
+type ServerTimes = { flipId: string; setMs: number; getMs?: number; getCached?: number };
+type TimesByRegion = Record<string, ServerTimes[]>; // region → its times for the clicks shown
+const timeOf = (times: TimesByRegion, region: string, flipId: string) => times[region]?.find((t) => t.flipId === flipId);
+const serverTip = (t?: ServerTimes) =>
+  t && `From the Convex logs: bulb:set ${ms(t.setMs)} · bulb:get ${t.getMs === undefined ? "—" : ms(t.getMs)} read fresh · ${t.getCached ?? 0} served from cache`;
 // One click: its target state, when it left this browser, and when each region's update landed.
 type Flip = { id: string; on: boolean; t0: number; landed: Record<string, number>; failed: Record<string, string> };
 
@@ -20,6 +26,7 @@ export function BulbView({ ready }: { ready: boolean }) {
   const [flip, setFlip] = useState<Flip | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [runs, setRuns] = useState<(Flip & { at: number })[]>([]); // this tab's finished clicks, newest first
+  const [times, setTimes] = useState<TimesByRegion>({});
 
   const pending = flip !== null && REGIONS.some((r) => flip.landed[r.id] === undefined && !flip.failed[r.id]);
   const now = useNow(pending);
@@ -77,12 +84,15 @@ export function BulbView({ ready }: { ready: boolean }) {
                 elapsed={flip ? (flip.landed[r.id] ?? (flip.failed[r.id] ? undefined : now - flip.t0)) : undefined}
                 rank={order.indexOf(r)}
                 failed={flip?.failed[r.id]}
+                flipIds={[...new Set([...(flip ? [flip.id] : []), ...runs.map((x) => x.id)])]}
+                onTimes={(t) => setTimes((prev) => (prev[r.id] === t ? prev : { ...prev, [r.id]: t }))}
+                server={flip ? timeOf(times, r.id, flip.id) : undefined}
               />
             </ConvexProvider>
           ))}
         </div>
 
-        <RunsTable runs={runs} />
+        <RunsTable runs={runs} times={times} />
 
         <p className="max-w-xl text-center text-xs text-muted">
           Times are round trips: from your click, to that region, and back to this browser. Other visitors' clicks flip
@@ -94,7 +104,7 @@ export function BulbView({ ready }: { ready: boolean }) {
 }
 
 // Your latest clicks: each region's round trip, fastest highlighted.
-function RunsTable({ runs }: { runs: (Flip & { at: number })[] }) {
+function RunsTable({ runs, times }: { runs: (Flip & { at: number })[]; times: TimesByRegion }) {
   return (
     <div className="w-full max-w-md overflow-x-auto rounded-md border border-line">
       <table className="w-full border-collapse font-mono text-[11px]">
@@ -117,11 +127,15 @@ function RunsTable({ runs }: { runs: (Flip & { at: number })[] }) {
             )[0];
             return (
               <tr key={run.id} className="border-b border-line/60 text-neutral-300 last:border-0 [&>td]:px-2 [&>td]:py-0.5">
-                <td className="text-muted">{new Date(run.at).toLocaleTimeString()}</td>
+                <td className="whitespace-nowrap text-muted">{new Date(run.at).toLocaleTimeString()}</td>
                 <td>{run.on ? "on" : "off"}</td>
                 {REGIONS.map((r) => (
                   <td key={r.id} className={cx("text-right tabular-nums", fastest === r && "text-emerald-300")}>
-                    {run.failed[r.id] ? <span className="text-red-400">failed</span> : ms(run.landed[r.id])}
+                    {run.failed[r.id] ? (
+                      <span className="text-red-400">failed</span>
+                    ) : (
+                      <ServerCell landed={run.landed[r.id]} server={timeOf(times, r.id, run.id)} />
+                    )}
                   </td>
                 ))}
                 <td className="text-right" title={fastest?.label}>{fastest ? fastest.flag : "—"}</td>
@@ -148,6 +162,9 @@ function RegionBulb({
   elapsed,
   rank,
   failed,
+  flipIds,
+  onTimes,
+  server,
 }: {
   region: Region;
   onState: (s: BulbState | null) => void;
@@ -155,11 +172,18 @@ function RegionBulb({
   elapsed?: number;
   rank: number;
   failed?: string;
+  flipIds: string[];
+  onTimes: (t: ServerTimes[]) => void;
+  server?: ServerTimes;
 }) {
   const state = useQuery(api.bulb.get);
   useEffect(() => {
     if (state !== undefined) onState(state);
   }, [state, onState]);
+  const serverTimes = useQuery(api.bulb.times, { flipIds });
+  useEffect(() => {
+    if (serverTimes !== undefined) onTimes(serverTimes);
+  }, [serverTimes, onTimes]);
   const on = state?.on ?? false;
 
   return (
@@ -189,7 +213,20 @@ function RegionBulb({
           <span className={rank === 0 ? "text-emerald-300" : "text-muted"}>{ORDINAL[rank]}</span>
         ) : null}
       </p>
+      <p className="h-4 font-mono text-[10px] text-muted" title={serverTip(server)}>
+        {server?.getMs !== undefined && `server ${ms(server.getMs)}`}
+      </p>
     </section>
+  );
+}
+
+// Round trip, with the logs' server read time underneath (full breakdown on hover).
+function ServerCell({ landed, server }: { landed: number; server?: ServerTimes }) {
+  return (
+    <span title={serverTip(server)}>
+      {ms(landed)}
+      <span className="block whitespace-nowrap text-[9px] text-muted">{server?.getMs === undefined ? "server —" : `server ${ms(server.getMs)}`}</span>
+    </span>
   );
 }
 
