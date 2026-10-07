@@ -429,3 +429,9 @@ add the server word next to the time
 ---
 
 remove the green dots
+
+---
+
+commit to github,  and deploy on .site, 
+
+and explain to me exacclty how it works
