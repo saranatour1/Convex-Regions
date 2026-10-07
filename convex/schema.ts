@@ -59,6 +59,10 @@ export default defineSchema({
     echoSmallMs: v.optional(v.number()),
     echoBigMs: v.optional(v.number()),
     mbps: v.optional(v.number()),
+    siteMs: v.optional(v.number()),
+    sseFirstMs: v.optional(v.number()),
+    sseStreamed: v.optional(v.boolean()),
+    wsBigMs: v.optional(v.number()),
     error: v.optional(v.string()),
   }).index("by_userId", ["userId"]),
   locationChanges: defineTable({

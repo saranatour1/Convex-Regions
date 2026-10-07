@@ -54,4 +54,40 @@ http.route({
   }),
 });
 
+// Network test checks, adapted from get-convex/network-test. Served at /api/ping and /api/sse on
+// each region's .convex.site, which the existing pings (.convex.cloud) don't touch. CORS * because
+// the page calls every region cross-origin; nothing here reads data or needs a session.
+const CORS = { "Access-Control-Allow-Origin": "*" };
+
+http.route({
+  path: "/ping",
+  method: "GET",
+  handler: httpAction(async () => Response.json({ ok: true }, { headers: { ...CORS, "Cache-Control": "no-store" } })),
+});
+
+// 5 events 200 ms apart, then "done". A proxy that buffers streams delivers them all at once,
+// which the browser side detects from the gaps between arrivals.
+const SSE_EVENTS = 5;
+const SSE_GAP_MS = 200; // src/lib/netTest.ts expects this spacing
+http.route({
+  path: "/sse",
+  method: "GET",
+  handler: httpAction(async () => {
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        for (let i = 0; i < SSE_EVENTS; i++) {
+          controller.enqueue(encoder.encode(`data: ${i}\n\n`));
+          await new Promise((r) => setTimeout(r, SSE_GAP_MS));
+        }
+        controller.enqueue(encoder.encode("data: done\n\n"));
+        controller.close();
+      },
+    });
+    return new Response(stream, {
+      headers: { ...CORS, "Content-Type": "text/event-stream", "Cache-Control": "no-cache" },
+    });
+  }),
+});
+
 export default http;
