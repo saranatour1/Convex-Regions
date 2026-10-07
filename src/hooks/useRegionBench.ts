@@ -32,6 +32,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     start: number;
     lat: number[];
     serverLat: number[];
+    netLat: number[];
   } | null>(null);
 
   const [latency, setLatency] = useState<Record<string, number>>({}); // key → browser sent → seen ms (this tab)
@@ -53,6 +54,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
         if (r.kind === "insert") {
           const patch: Results = { insert: stats(r.lat, wall) };
           if (r.serverLat.length > 0) patch.insertServer = stats(r.serverLat, wall);
+          if (r.netLat.length > 0) patch.insertNetwork = stats(r.netLat, wall);
           onResult(region.id, patch);
         } else {
           onResult(region.id, { delete: stats(r.lat, wall) });
@@ -107,7 +109,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     setBusy(kind);
     setProgress({ done: 0, total });
     sent.current.clear();
-    run.current = { kind, total, start: performance.now(), lat: [], serverLat: [] };
+    run.current = { kind, total, start: performance.now(), lat: [], serverLat: [], netLat: [] };
   };
 
   // A Convex mutation resolves only once this client's query results include the
@@ -137,7 +139,10 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
         r.lat.push(t);
         if (typeof listRanAt === "number") {
           const serverSpan = listRanAt - startedAt;
-          if (serverSpan >= 0) r.serverLat.push(serverSpan);
+          if (serverSpan >= 0) {
+            r.serverLat.push(serverSpan);
+            r.netLat.push(Math.max(0, t - serverSpan)); // outside the server: there + queue + back
+          }
         }
         setLatency((prev) => ({ ...prev, [key]: t }));
         setSeries([...r.lat]);

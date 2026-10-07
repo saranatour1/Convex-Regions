@@ -1,6 +1,6 @@
 import { REGIONS } from "../regions";
 import { cx, ms } from "../lib/format";
-import { primaryInsert, type Results } from "../lib/stats";
+import { fastestRegion, primaryInsert, type Results } from "../lib/stats";
 import { useBenches } from "../hooks/benchStore";
 import { LatencyChart } from "../components/LatencyChart";
 import { RunControls } from "../components/RunControls";
@@ -18,17 +18,13 @@ export function CompareView({
   results: Record<string, Results | undefined>;
 }) {
   const benches = useBenches();
-  const timed = REGIONS.filter((r) => primaryInsert(results[r.id]));
-  const fastest =
-    timed.length > 1
-      ? timed.reduce((a, b) => (primaryInsert(results[a.id])!.p50 <= primaryInsert(results[b.id])!.p50 ? a : b)).id
-      : null;
+  const fastest = fastestRegion(results); // lowest median network time, see lib/stats
   const empty = REGIONS.every((r) => !benches[r.id]?.series.length);
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2">
-        <span className="mr-auto text-[13px] text-muted">Each write's time until it shows up here, by region, in arrival order.</span>
+        <span className="mr-auto text-[13px] text-muted">Each write's round trip (send → visible here), by region, in arrival order.</span>
         <RunControls n={n} setN={setN} ready={ready} />
       </div>
 
@@ -58,9 +54,10 @@ export function CompareView({
                     `${b.progress!.done} / ${b.progress!.total} seen…`
                   ) : primary ? (
                     <>
-                      median <b className="font-normal text-neutral-100">{ms(primary.p50)}</b>
+                      {results[r.id]?.insertServer ? "inside Convex" : "round trip"}{" "}
+                      <b className="font-normal text-neutral-100">{ms(primary.p50)}</b>
                       {e2e && results[r.id]?.insertServer ? (
-                        <> · browser {ms(e2e.p50)}</>
+                        <> · round trip {ms(e2e.p50)}</>
                       ) : (
                         <> · all {ms(e2e?.total ?? primary.total)}</>
                       )}
@@ -76,7 +73,7 @@ export function CompareView({
 
         <section className="relative flex min-h-0 flex-1 flex-col rounded-lg border border-line bg-panel p-4">
           <header className="mb-2 flex items-baseline justify-between gap-3">
-            <h2 className="text-sm font-medium text-neutral-100">Time until each write shows up</h2>
+            <h2 className="text-sm font-medium text-neutral-100">Round trip per write (send → visible)</h2>
             <span className="text-xs text-muted">x: write # (arrival order) · y: ms</span>
           </header>
           <div className="relative min-h-64 flex-1">
