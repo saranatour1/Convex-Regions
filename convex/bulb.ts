@@ -28,6 +28,29 @@ export const set = mutation({
     const next = { on, flipId, flippedAt: Date.now() };
     if (bulb) await ctx.db.patch("bulb", bulb._id, next);
     else await ctx.db.insert("bulb", next);
+    console.log(flipId); // scripts/sync-logs.mjs pairs this click with its log times
     return null;
+  },
+});
+
+const vTimes = v.object({
+  flipId: v.string(),
+  setMs: v.number(),
+  getMs: v.optional(v.number()),
+  getCached: v.optional(v.number()),
+});
+
+// Server times from the logs for the given clicks (written by scripts/sync-logs.mjs).
+export const times = query({
+  args: { flipIds: v.array(v.string()) },
+  returns: v.array(vTimes),
+  handler: async (ctx, { flipIds }) => {
+    if (flipIds.length > 10) throw new ConvexError({ kind: "BadInput" as const });
+    const out = [];
+    for (const flipId of flipIds) {
+      const t = await ctx.db.query("bulbFlips").withIndex("by_flipId", (q) => q.eq("flipId", flipId)).unique();
+      if (t) out.push({ flipId: t.flipId, setMs: t.setMs, getMs: t.getMs, getCached: t.getCached });
+    }
+    return out;
   },
 });

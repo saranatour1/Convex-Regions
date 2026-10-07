@@ -50,3 +50,21 @@ export const record = internalMutation({
     return null;
   },
 });
+
+// Same, for the light bulb: one row per click (flipId), set and delivering-read times.
+export const recordBulb = internalMutation({
+  args: {
+    rows: v.array(
+      v.object({ flipId: v.string(), setMs: v.number(), getMs: v.optional(v.number()), getCached: v.optional(v.number()) }),
+    ),
+  },
+  returns: v.null(),
+  handler: async (ctx, { rows }) => {
+    for (const row of rows) {
+      const existing = await ctx.db.query("bulbFlips").withIndex("by_flipId", (q) => q.eq("flipId", row.flipId)).unique();
+      if (existing) await ctx.db.patch("bulbFlips", existing._id, row);
+      else await ctx.db.insert("bulbFlips", row);
+    }
+    return null;
+  },
+});
