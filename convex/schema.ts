@@ -20,6 +20,9 @@ export default defineSchema({
     itemId: v.optional(v.string()),
     ms: v.optional(v.number()),
   }).index("by_requestId", ["requestId"]),
+  // Singleton: the light bulb experiment's shared switch in this region. flipId ties the four
+  // regions' writes from one click together; flippedAt is this region's server time.
+  bulb: defineTable({ on: v.boolean(), flipId: v.string(), flippedAt: v.number() }),
   // Singleton: the delete worker removes items created at or before `before`.
   clears: defineTable({ before: v.number() }),
 
