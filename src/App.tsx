@@ -11,12 +11,14 @@ import { ChevronIcon, Chip, PinIcon, Tabs } from "./components/ui";
 import { LatencyView } from "./views/LatencyView";
 import { NetworkView } from "./views/NetworkView";
 import { CompareView } from "./views/CompareView";
+import { BulbView } from "./views/BulbView";
 import type { Results } from "./lib/stats";
 
 const TABS = [
   { id: "latency", label: "Latency" },
   { id: "network", label: "Network test" },
   { id: "compare", label: "Compare" },
+  { id: "bulb", label: "Light bulb" },
 ] as const;
 type Tab = (typeof TABS)[number]["id"];
 
@@ -95,6 +97,9 @@ export default function App() {
       </Activity>
       <Activity mode={tab === "compare" ? "visible" : "hidden"}>
         <CompareView n={n} setN={setN} ready={ready} results={latency} />
+      </Activity>
+      <Activity mode={tab === "bulb" ? "visible" : "hidden"}>
+        <BulbView ready={ready} />
       </Activity>
     </div>
   );
