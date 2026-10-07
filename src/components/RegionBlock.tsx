@@ -19,7 +19,7 @@ export function RegionBlock({
 }) {
   const rows = useWithGhosts(b.items, b.loaded);
 
-  const { insert: e2e, insertServer, delete: del } = results ?? {};
+  const { insert: e2e, insertServer, insertNetwork, delete: del } = results ?? {};
   const primary = primaryInsert(results);
   const running = b.busy !== null && b.progress;
 
@@ -37,7 +37,10 @@ export function RegionBlock({
           {region.aws}
         </span>
         {fastest && (
-          <span className="inline-flex h-6 items-center rounded-md border border-dashed border-emerald-500/60 px-2 text-xs text-emerald-300">
+          <span
+            title="Lowest median time outside Convex: round trip minus time inside Convex. Mostly distance to this browser; includes queueing when N > 1."
+            className="inline-flex h-6 items-center rounded-md border border-dashed border-emerald-500/60 px-2 text-xs text-emerald-300"
+          >
             fastest
           </span>
         )}
@@ -61,12 +64,17 @@ export function RegionBlock({
             </p>
             <p className="text-xs text-muted">
               {insertServer
-                ? `median server span (list − add start) · ${region.city}`
-                : `median time until a write shows up · ${region.city}`}
+                ? `median time inside Convex (add start → list re-run) · ${region.city}`
+                : `median round trip (send → visible) · ${region.city}`}
             </p>
             {insertServer && e2e && (
               <p className="mt-0.5 font-mono text-xs tabular-nums text-muted">
-                until browser saw it <b className="font-normal text-neutral-300">{ms(e2e.p50)}</b>
+                round trip <b className="font-normal text-neutral-300">{ms(e2e.p50)}</b>
+                {insertNetwork && (
+                  <>
+                    {" · "}outside Convex <b className="font-normal text-neutral-300">{ms(insertNetwork.p50)}</b>
+                  </>
+                )}
               </p>
             )}
           </div>

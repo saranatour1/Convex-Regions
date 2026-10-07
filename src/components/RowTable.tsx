@@ -4,8 +4,8 @@ import type { Shown } from "../hooks/useWithGhosts";
 const VISIBLE = 40; // more than fits; the block clips the rest
 
 // Newest rows on top, like the Convex data view.
-// Time column: items:add execution time from the dashboard logs (log stream webhook) once it
-// arrives; until then, this tab's browser-measured time, tagged "browser".
+// round trip: this tab's stopwatch (send → row visible); "—" for rows this tab didn't time.
+// server › logs: the Convex dashboard's numbers for the row, via pnpm run logs:sync.
 export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<string, number> }) {
   const recent = rows.slice(-VISIBLE).reverse();
   return (
@@ -15,13 +15,21 @@ export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<str
           <tr className="[&>th]:border-b [&>th]:border-line [&>th]:px-3 [&>th]:py-1.5 [&>th]:font-normal">
             <th>_id</th>
             <th>key</th>
-            <th className="w-36 text-right" title="Server: items:add execution time from the Convex dashboard logs. Browser: time until the write showed up in this tab.">time</th>
+            <th className="w-28 whitespace-nowrap text-right" title="Round trip, timed in this tab: from sending the insert until the row was visible here. Includes the trip to the region and back, and any wait behind earlier inserts.">
+              round trip
+            </th>
+            <th
+              className="w-32 text-right"
+              title="From the Convex dashboard logs (pnpm run logs:sync): the items:list run that delivered this row. Text = its execution time, read fresh. Hover a cell for the items:add time and how many subscribers got it from cache."
+            >
+              <span className="block text-[9px] uppercase leading-none tracking-wide">server</span>
+              logs
+            </th>
           </tr>
         </thead>
         <tbody>
           {recent.map((r) => {
-            const t = r.serverMs ?? latency[r.key];
-            const browser = r.serverMs === undefined && t !== undefined;
+            const t = latency[r.key];
             return (
               <tr
                 key={r._id}
@@ -34,19 +42,33 @@ export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<str
                 <td className="text-muted">{r.key}</td>
                 <td className="text-right tabular-nums">
                   <span className="inline-flex items-center gap-1.5">
-                    {t !== undefined && (
-                      <span className="text-[10px] uppercase tracking-wide text-muted">{browser ? "browser" : "server"}</span>
-                    )}
                     {t === undefined ? "—" : ms(t)}
                     <span className={cx("size-2 rounded-[2px]", r.ghost ? "bg-red-500" : tone(t))} />
                   </span>
+                </td>
+                <td
+                  className="text-right tabular-nums"
+                  title={
+                    r.listMs === undefined
+                      ? undefined
+                      : `items:add ${r.serverMs === undefined ? "—" : ms(r.serverMs)} · items:list ${ms(r.listMs)} read fresh · ${r.listCached ?? 0} served from cache`
+                  }
+                >
+                  {r.listMs === undefined ? (
+                    "—"
+                  ) : (
+                    <span className="inline-flex items-center gap-1">
+                      <span className="text-[10px] uppercase tracking-wide text-muted">server</span>
+                      {ms(r.listMs)}
+                    </span>
+                  )}
                 </td>
               </tr>
             );
           })}
           {recent.length === 0 && (
             <tr>
-              <td colSpan={3} className="px-3 py-6 text-center font-sans text-muted">
+              <td colSpan={4} className="px-3 py-6 text-center font-sans text-muted">
                 No documents
               </td>
             </tr>
@@ -56,3 +78,4 @@ export function RowTable({ rows, latency }: { rows: Shown[]; latency: Record<str
     </div>
   );
 }
+
