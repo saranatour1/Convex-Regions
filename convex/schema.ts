@@ -23,6 +23,15 @@ export default defineSchema({
   // Singleton: the light bulb experiment's shared switch in this region. flipId ties the four
   // regions' writes from one click together; flippedAt is this region's server time.
   bulb: defineTable({ on: v.boolean(), flipId: v.string(), flippedAt: v.number() }),
+  // Per click, from the logs (scripts/sync-logs.mjs): bulb:set's execution time, and the bulb:get
+  // re-run that delivered it (getMs, read fresh) plus how many subscribers got that from cache.
+  // ponytail: one row per click per region, never pruned; clicks are capped at 10/visitor/hour.
+  bulbFlips: defineTable({
+    flipId: v.string(),
+    setMs: v.number(),
+    getMs: v.optional(v.number()),
+    getCached: v.optional(v.number()),
+  }).index("by_flipId", ["flipId"]),
   // Singleton: the delete worker removes items created at or before `before`.
   clears: defineTable({ before: v.number() }),
 
