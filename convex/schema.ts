@@ -7,6 +7,10 @@ export default defineSchema({
   items: defineTable({
     key: v.string(),
     serverMs: v.optional(v.number()),
+    // From the logs (scripts/sync-logs.mjs): the items:list run that first delivered this row.
+    // listMs: its execution time (executed fresh); listCached: subscribers served it from cache.
+    listMs: v.optional(v.number()),
+    listCached: v.optional(v.number()),
     latencyMs: v.optional(v.number()), // ponytail: unused, old rows still carry it; drop after a Delete all
   }),
   // Log events arrive split (console line with the id, execution with the time),
