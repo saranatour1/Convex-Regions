@@ -7,6 +7,7 @@
     "dev": "convex dev --start 'vite --open'",
     "typecheck": "tsc -b",
     "build": "npm run typecheck && vite build",
+    "build:prod": "npm run typecheck && vite build --mode prod",
     "lint": "npm run typecheck && eslint .  --ext ts,tsx --report-unused-disable-directives --max-warnings 0",
     "preview": "vite preview",
     "push:all": "cp .env.local .env.bak.local && for d in ardent-kingfisher-453 wooden-ocelot-218 insightful-crane-62 curious-hyena-917; do CONVEX_DEPLOYMENT=dev:$d convex dev --once || break; done; mv .env.bak.local .env.local",
@@ -15,7 +16,10 @@
     "block": "sh scripts/block.sh",
     "region-logs": "node scripts/region-logs.mjs",
     "logs:sync": "node scripts/sync-logs.mjs",
-    "deploy:site": "convex dev --once && static-hosting upload --build"
+    "logs:sync:prod": "node scripts/sync-logs.mjs --prod",
+    "deploy:site": "convex dev --once && static-hosting upload --build",
+    "push:prod": "for r in us eu au ca; do convex deploy --env-file .env.deploy.$r.local -y || exit 1; done",
+    "deploy:prod": "pnpm run push:prod && convex deploy --env-file .env.deploy.site.local -y && static-hosting upload --prod --build-command 'npm run build:prod'"
   },
   "dependencies": {
     "@convex-dev/batch-worker": "^0.3.4",
