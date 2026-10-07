@@ -1,28 +1,30 @@
-# Welcome to your Convex + React (Vite) app
+# Convex Region Latency
 
-This is a [Convex](https://convex.dev/) project created with [`npm create convex`](https://www.npmjs.com/package/create-convex).
+How fast a Convex write shows up in four regions (US, Europe, Australia, Canada), live.
 
-After the initial setup (<2 minutes) you'll have a working full-stack app using:
+**Live:** https://zany-puma-173.convex.site
 
-- Convex as your backend (database, server logic)
-- [React](https://react.dev/) as your frontend (web page interactivity)
-- [Vite](https://vitest.dev/) for optimized web hosting
-- [Tailwind](https://tailwindcss.com/) for building great looking accessible UI
+## Tabs
 
-## Get started
+- **Latency**: insert rows in every region and time each round trip.
+- **Network test**: check WebSocket, HTTP, SSE and large messages per region.
+- **Compare**: every region's latest run on one chart.
+- **Light bulb**: one switch, four regions; watch each bulb light up as its update arrives.
 
-If you just cloned this codebase and didn't use `npm create convex`, run:
+## Run it
 
+```bash
+pnpm install
+pnpm run dev
 ```
-npm install
-npm run dev
+
+## Deploy
+
+```bash
+pnpm run deploy:prod
 ```
 
-If you're reading this README on GitHub and want to use this template, run:
-
-```
-npm create convex@latest -- -t react-vite
-```
+Deploys the backend to all four regions and publishes the site. Rate limits are in [`convex/rateLimits.ts`](convex/rateLimits.ts).
 
 ## Learn more
 
