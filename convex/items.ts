@@ -22,20 +22,18 @@ const allowWrite = async (ctx: MutationCtx, sessionToken: string) => {
 // stamp of each run, and `list` re-runs on every insert anyway, so caching gains nothing.
 export const list = query({
   args: {},
-  returns: v.object({
-    ranAt: v.number(),
-    items: v.array(v.object({ _id: v.id("items"), key: v.string(), serverMs: v.optional(v.number()) })),
-  }),
   handler: async (ctx) => {
     const items = await ctx.db.query("items").order("desc").take(WINDOW);
-    return { ranAt: Date.now(), items: items.map(({ _id, key, serverMs }) => ({ _id, key, serverMs })) };
+    return {
+      ranAt: Date.now(),
+      items: items.map(({ _id, key, serverMs, listMs, listCached }) => ({ _id, key, serverMs, listMs, listCached })),
+    };
   },
 });
 
 // startedAt: server time this mutation began executing (same as the log's executionTimestamp).
 export const add = mutation({
   args: { key: v.string(), sessionToken: v.string() },
-  returns: v.object({ id: v.id("items"), startedAt: v.number() }),
   handler: async (ctx, { key, sessionToken }) => {
     const startedAt = Date.now();
     if (key.length > 64) throw new Error("key too long");
