@@ -1,0 +1,32 @@
+{
+  "cli_version": "0.11.3",
+  "checkpoint_id": "01M4AWDG666ZY4TAY12G3X3QM6",
+  "strategy": "manual-commit",
+  "branch": "fix-network-test",
+  "checkpoints_count": 4,
+  "files_touched": [
+    "convex/http.ts",
+    "convex/logs.ts",
+    "convex/schema.ts",
+    "src/components/NetworkBlock.tsx",
+    "src/lib/netTest.ts",
+    "src/lib/stats.ts",
+    "src/views/NetworkView.tsx"
+  ],
+  "sessions": [
+    {
+      "metadata": "/0/metadata.json",
+      "transcript": "/0/full.jsonl",
+      "compact_transcript": "/0/transcript.jsonl",
+      "content_hash": "/0/content_hash.txt",
+      "prompt": "/0/prompt.txt"
+    }
+  ],
+  "token_usage": {
+    "input_tokens": 856,
+    "cache_creation_tokens": 1021815,
+    "cache_read_tokens": 145180204,
+    "output_tokens": 293050,
+    "api_call_count": 428
+  }
+}
