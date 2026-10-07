@@ -1,7 +1,7 @@
 import type { Region } from "../regions";
 import { cx, ms, tone } from "../lib/format";
 import { median, type Net } from "../lib/stats";
-import type { NetStep } from "../lib/netTest";
+import { WS_BIG, type NetStep } from "../lib/netTest";
 import { Chip, PulseIcon } from "./ui";
 
 export type NetState = { status: "idle" | "queued" | "running" | "done" | "error"; step?: NetStep; net?: Net; error?: string };
@@ -49,7 +49,7 @@ export function NetworkBlock({
         </Chip>
       </header>
 
-      <div className="flex min-h-0 flex-1 flex-col gap-4 p-4">
+      <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
         <div>
           <p key={ws} className="font-mono text-3xl tabular-nums text-neutral-100 animate-flash">
             {ws === undefined ? "—" : ms(ws)}
@@ -57,12 +57,29 @@ export function NetworkBlock({
           <p className="text-xs text-muted">median WebSocket round trip · {region.city}</p>
         </div>
 
-        <dl className="grid grid-cols-[6rem_1fr_auto] items-center gap-x-3 gap-y-2.5 font-mono text-xs">
+        <dl className="grid grid-cols-[6rem_1fr_auto] items-center gap-x-3 gap-y-1.5 font-mono text-xs">
           <Row label="WebSocket" active={active("ws")} value={net?.wsSamples.length ? ms(median(net.wsSamples)) : undefined}>
             <Samples values={net?.wsSamples} />
           </Row>
           <Row label="HTTP" active={active("http")} value={net?.httpSamples.length ? ms(median(net.httpSamples)) : undefined}>
             <Samples values={net?.httpSamples} />
+          </Row>
+          <Row
+            label="HTTP action"
+            active={active("site")}
+            value={net?.siteSamples.length ? ms(median(net.siteSamples)) : undefined}
+            title="GET /api/ping on this region's .convex.site (HTTP actions)"
+          >
+            <Samples values={net?.siteSamples} />
+          </Row>
+          <Row
+            label="SSE stream"
+            active={active("sse")}
+            value={net?.sse ? `${ms(net.sse.firstMs)} · ${net.sse.streamed ? "streamed" : "buffered"}` : undefined}
+            warn={net?.sse ? !net.sse.streamed : false}
+            title="Server-Sent Events from /api/sse: time to the first event. 'buffered' means the events arrived bunched together, so something on the way is holding the stream back."
+          >
+            <Bar running={active("sse")} done={net?.sse !== undefined} />
           </Row>
           <Row label="Echo 128 B" active={active("echo-small")} value={net?.echoSmall === undefined ? undefined : ms(net.echoSmall)}>
             <Bar running={active("echo-small")} done={net?.echoSmall !== undefined} />
@@ -74,6 +91,14 @@ export function NetworkBlock({
           >
             <Bar running={active("echo-big")} done={net?.echoBig !== undefined} />
           </Row>
+          <Row
+            label="WS 1 MB"
+            active={active("ws-big")}
+            value={net?.wsBig === undefined ? undefined : `${ms(net.wsBig)} · ${(WS_BIG / 1e6 / (net.wsBig / 1000)).toFixed(1)} MB/s`}
+            title="A 1 MB message over the WebSocket; some networks drop large WebSocket frames"
+          >
+            <Bar running={active("ws-big")} done={net?.wsBig !== undefined} />
+          </Row>
         </dl>
       </div>
 
@@ -82,12 +107,30 @@ export function NetworkBlock({
   );
 }
 
-function Row({ label, value, active, children }: { label: string; value?: string; active: boolean; children: React.ReactNode }) {
+function Row({
+  label,
+  value,
+  active,
+  warn,
+  title,
+  children,
+}: {
+  label: string;
+  value?: string;
+  active: boolean;
+  warn?: boolean;
+  title?: string;
+  children: React.ReactNode;
+}) {
   return (
     <>
-      <dt className={cx("transition-colors", active ? "text-sky-300" : "text-muted")}>{label}</dt>
+      <dt className={cx("transition-colors", active ? "text-sky-300" : "text-muted")} title={title}>
+        {label}
+      </dt>
       <dd className="flex min-w-0 flex-wrap gap-1">{children}</dd>
-      <dd key={value} className="text-right tabular-nums text-neutral-200 animate-flash">{value ?? "—"}</dd>
+      <dd key={value} className={cx("text-right tabular-nums animate-flash", warn ? "text-amber-300" : "text-neutral-200")}>
+        {value ?? "—"}
+      </dd>
     </>
   );
 }
