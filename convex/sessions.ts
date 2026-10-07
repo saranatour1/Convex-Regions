@@ -18,6 +18,7 @@ export const start = mutation({
   handler: async (ctx, { userKey, sessionToken, userAgent }) => {
     if (!TOKEN.test(userKey) || !TOKEN.test(sessionToken)) throw sessionInvalid();
     const keyHash = await sha256(userKey);
+    await rateLimiter.limit(ctx, "appCalls", { throws: true }); // doesn't go through requireSession
     await rateLimiter.limit(ctx, "sessionStarts", { key: keyHash, throws: true });
 
     let user = await ctx.db.query("users").withIndex("by_keyHash", (q) => q.eq("keyHash", keyHash)).unique();
@@ -45,7 +46,7 @@ export const start = mutation({
   },
 });
 
-// Every write goes through this: a known session whose user isn't blocked.
+// Every write goes through this: a known session whose user isn't blocked, under the app-wide cap.
 export async function requireSession(ctx: MutationCtx, sessionToken: string) {
   if (!TOKEN.test(sessionToken)) throw sessionInvalid();
   const tokenHash = await sha256(sessionToken);
@@ -54,5 +55,6 @@ export async function requireSession(ctx: MutationCtx, sessionToken: string) {
   const user = await ctx.db.get("users", session.userId);
   if (!user) throw sessionInvalid();
   if (user.blocked) throw new ConvexError({ kind: "Blocked" as const });
+  await rateLimiter.limit(ctx, "appCalls", { throws: true });
   return { session, user };
 }

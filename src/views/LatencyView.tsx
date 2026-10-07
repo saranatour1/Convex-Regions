@@ -1,6 +1,6 @@
 import { REGIONS } from "../regions";
 import { TONES, cx } from "../lib/format";
-import type { Results } from "../lib/stats";
+import { fastestRegion, type Results } from "../lib/stats";
 import { useBenches } from "../hooks/benchStore";
 import { RegionBlock } from "../components/RegionBlock";
 import { RunControls } from "../components/RunControls";
@@ -19,16 +19,12 @@ export function LatencyView({
 }) {
   const benches = useBenches();
 
-
-  // Fastest = lowest median write → seen, once at least 2 regions have run.
-  const timed = REGIONS.filter((r) => results[r.id]?.insert);
-  const fastest =
-    timed.length > 1 ? timed.reduce((a, b) => (results[a.id]!.insert!.p50 <= results[b.id]!.insert!.p50 ? a : b)).id : null;
+  const fastest = fastestRegion(results); // lowest median network time, see lib/stats
 
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2">
-        <span className="mr-auto text-[13px] text-muted">Insert N rows per region and time each one until it shows up here.</span>
+        <span className="mr-auto text-[13px] text-muted">Insert N rows per region and time each round trip (send → visible).</span>
         <RunControls n={n} setN={setN} ready={ready} />
       </div>
 
@@ -47,7 +43,7 @@ export function LatencyView({
             <span className={cx("size-2.5 rounded-[2px]", t.className)} /> {t.label}
           </span>
         ))}
-        <span className="ml-auto">N=1 shows the pure distance to a region; a bigger N adds queueing.</span>
+        <span className="ml-auto">N=1: round trip ≈ distance. Bigger N: later writes also wait behind earlier ones.</span>
       </footer>
     </div>
   );

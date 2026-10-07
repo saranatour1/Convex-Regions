@@ -1,6 +1,6 @@
 import { WINDOW, type Region } from "../regions";
 import { cx, ms } from "../lib/format";
-import type { Results } from "../lib/stats";
+import { primaryInsert, type Results } from "../lib/stats";
 import type { Bench } from "../hooks/useRegionBench";
 import { useWithGhosts } from "../hooks/useWithGhosts";
 import { RowTable } from "./RowTable";
@@ -19,7 +19,8 @@ export function RegionBlock({
 }) {
   const rows = useWithGhosts(b.items, b.loaded);
 
-  const { insert: ins, delete: del } = results ?? {};
+  const { insert: e2e, insertServer, insertNetwork, delete: del } = results ?? {};
+  const primary = primaryInsert(results);
   const running = b.busy !== null && b.progress;
 
   return (
@@ -36,7 +37,10 @@ export function RegionBlock({
           {region.aws}
         </span>
         {fastest && (
-          <span className="inline-flex h-6 items-center rounded-md border border-dashed border-emerald-500/60 px-2 text-xs text-emerald-300">
+          <span
+            title="Lowest median time outside Convex: round trip minus time inside Convex. Mostly distance to this browser; includes queueing when N > 1."
+            className="inline-flex h-6 items-center rounded-md border border-dashed border-emerald-500/60 px-2 text-xs text-emerald-300"
+          >
             fastest
           </span>
         )}
@@ -55,10 +59,24 @@ export function RegionBlock({
       <div className="flex min-h-0 flex-1 flex-col gap-3 p-4">
         <div className="flex min-h-0 flex-col gap-3">
           <div>
-            <p key={ins?.p50} className="font-mono text-3xl tabular-nums text-neutral-100 animate-flash">
-              {ins ? ms(ins.p50) : "—"}
+            <p key={primary?.p50} className="font-mono text-3xl tabular-nums text-neutral-100 animate-flash">
+              {primary ? ms(primary.p50) : "—"}
             </p>
-            <p className="text-xs text-muted">median time until a write shows up · {region.city}</p>
+            <p className="text-xs text-muted">
+              {insertServer
+                ? `median time inside Convex (add start → list re-run) · ${region.city}`
+                : `median round trip (send → visible) · ${region.city}`}
+            </p>
+            {insertServer && e2e && (
+              <p className="mt-0.5 font-mono text-xs tabular-nums text-muted">
+                round trip <b className="font-normal text-neutral-300">{ms(e2e.p50)}</b>
+                {insertNetwork && (
+                  <>
+                    {" · "}outside Convex <b className="font-normal text-neutral-300">{ms(insertNetwork.p50)}</b>
+                  </>
+                )}
+              </p>
+            )}
           </div>
           <TileGrid rows={rows} latency={b.latency} />
         </div>
@@ -66,7 +84,7 @@ export function RegionBlock({
       </div>
 
       <footer className="flex flex-wrap gap-x-4 gap-y-1 border-t border-line px-4 py-2 font-mono text-xs text-muted">
-        <span>all visible <b className="font-normal text-neutral-200">{ins ? ms(ins.total) : "—"}</b></span>
+        <span>all visible <b className="font-normal text-neutral-200">{e2e ? ms(e2e.total) : "—"}</b></span>
         <span>all deleted <b className="font-normal text-neutral-200">{del ? ms(del.total) : "—"}</b></span>
         {b.error && <span className="text-red-400">{b.error}</span>}
       </footer>

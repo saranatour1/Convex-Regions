@@ -9,11 +9,11 @@ export function TileGrid({ rows, latency }: { rows: Shown[]; latency: Record<str
   return (
     <div className="flex max-h-24 min-h-0 shrink-0 flex-wrap content-start gap-1 overflow-hidden">
       {[...rows].reverse().map((t) => {
-        const l = t.serverMs ?? latency[t.key]; // dashboard execution time, else this tab's browser time
+        const l = latency[t.key]; // this tab's stopwatch, like the table's "round trip" column
         return (
           <span
             key={t._id}
-            title={l === undefined ? undefined : `${ms(l)} (${t.serverMs === undefined ? "browser" : "server"})`}
+            title={l === undefined ? undefined : `${ms(l)} round trip`}
             className={cx(
               "size-3 rounded-[3px] motion-reduce:animate-none",
               t.ghost ? "bg-red-500 animate-vanish" : cx(tone(l), "animate-pop"),

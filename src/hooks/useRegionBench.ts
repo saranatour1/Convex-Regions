@@ -8,22 +8,36 @@ import { stats, type Results } from "../lib/stats";
 import { describe, isRateLimited } from "../lib/errors";
 import { sessionToken } from "../session";
 
-export type Item = FunctionReturnType<typeof api.items.list>[number];
+export type Item = FunctionReturnType<typeof api.items.list>["items"][number];
 export type Busy = "insert" | "delete" | null;
 const EMPTY: Item[] = [];
 
+// One insert's timeline, all epoch ms. sentAt/receivedAt are this browser's clock;
+// startedAt (add began) and listRanAt (list re-ran with the row) are the server's.
+// Comparing across the two clocks needs a clock-offset estimate first.
+export type Stamps = { sentAt: number; startedAt: number; listRanAt?: number; receivedAt: number };
+const wallNow = () => performance.timeOrigin + performance.now(); // epoch ms, sub-ms precision
+
 export function useRegionBench(region: Region, onResult: (id: string, patch: Results) => void) {
   const convex = useConvex();
-  const raw = useQuery(api.items.list);
+  const raw = useQuery(api.items.list)?.items;
   const add = useMutation(api.items.add);
   const clear = useMutation(api.items.clear);
 
   // key (insert) or _id (delete) → performance.now() when the mutation was sent
   const sent = useRef(new Map<string, number>());
-  const run = useRef<{ kind: "insert" | "delete"; total: number; start: number; lat: number[] } | null>(null);
+  const run = useRef<{
+    kind: "insert" | "delete";
+    total: number;
+    start: number;
+    lat: number[];
+    serverLat: number[];
+    netLat: number[];
+  } | null>(null);
 
   const [latency, setLatency] = useState<Record<string, number>>({}); // key → browser sent → seen ms (this tab)
-  const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order
+  const [stamps, setStamps] = useState<Record<string, Stamps>>({}); // key → server/browser timeline
+  const [series, setSeries] = useState<number[]>([]); // last insert run, in arrival order (browser E2E)
   const [busy, setBusy] = useState<Busy>(null);
   const [progress, setProgress] = useState<{ done: number; total: number } | null>(null);
   const [error, setError] = useState<string | null>(null);
@@ -36,8 +50,15 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
       const r = run.current;
       if (!r || sent.current.size > 0) return;
       if (r.lat.length > 0) {
-        const s = stats(r.lat, now - r.start);
-        onResult(region.id, r.kind === "insert" ? { insert: s } : { delete: s });
+        const wall = now - r.start;
+        if (r.kind === "insert") {
+          const patch: Results = { insert: stats(r.lat, wall) };
+          if (r.serverLat.length > 0) patch.insertServer = stats(r.serverLat, wall);
+          if (r.netLat.length > 0) patch.insertNetwork = stats(r.netLat, wall);
+          onResult(region.id, patch);
+        } else {
+          onResult(region.id, { delete: stats(r.lat, wall) });
+        }
       }
       run.current = null;
       setBusy(null);
@@ -51,7 +72,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     const pending = sent.current; // same Map for the hook's lifetime
     const unsubscribe = watch.onUpdate(() => {
       const r = run.current;
-      const list = watch.localQueryResult();
+      const list = watch.localQueryResult()?.items;
       if (r?.kind !== "delete" || !list) return;
       const now = performance.now();
       const present = new Set(list.map((i) => i._id));
@@ -88,7 +109,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     setBusy(kind);
     setProgress({ done: 0, total });
     sent.current.clear();
-    run.current = { kind, total, start: performance.now(), lat: [] };
+    run.current = { kind, total, start: performance.now(), lat: [], serverLat: [], netLat: [] };
   };
 
   // A Convex mutation resolves only once this client's query results include the
@@ -96,6 +117,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
   // whether the row is inside the list window or on how big the table is.
   // ponytail: one client's mutations run in order, so with N in flight the later ones
   // include queueing. Same N in every region, and it's what a real client sees.
+  // Primary UI median uses same-clock serverSpan = listRanAt − startedAt when both exist.
   const insert = (n: number) => {
     if (run.current || raw === undefined) return;
     begin("insert", n);
@@ -103,13 +125,25 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     for (let i = 0; i < n; i++) {
       const key = crypto.randomUUID();
       const sentAt = performance.now();
+      const sentWall = wallNow();
       sent.current.set(key, sentAt);
-      add({ key, sessionToken }).then(() => {
+      add({ key, sessionToken }).then(({ startedAt }) => {
         const now = performance.now();
+        // The promise resolves in the same update that delivered the row, so the cached
+        // list result right now is the run that carried it.
+        const listRanAt = convex.watchQuery(api.items.list, {}).localQueryResult()?.ranAt;
+        setStamps((prev) => ({ ...prev, [key]: { sentAt: sentWall, startedAt, listRanAt, receivedAt: wallNow() } }));
         const r = run.current;
         if (!r || !sent.current.delete(key)) return; // run was cancelled
         const t = now - sentAt;
         r.lat.push(t);
+        if (typeof listRanAt === "number") {
+          const serverSpan = listRanAt - startedAt;
+          if (serverSpan >= 0) {
+            r.serverLat.push(serverSpan);
+            r.netLat.push(Math.max(0, t - serverSpan)); // outside the server: there + queue + back
+          }
+        }
         setLatency((prev) => ({ ...prev, [key]: t }));
         setSeries([...r.lat]);
         setProgress({ done: r.lat.length, total: r.total });
@@ -134,7 +168,7 @@ export function useRegionBench(region: Region, onResult: (id: string, patch: Res
     clear({ sessionToken }).catch(fail);
   };
 
-  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, series, busy, progress, error, insert, del };
+  return { items: raw ?? EMPTY, loaded: raw !== undefined, latency, stamps, series, busy, progress, error, insert, del };
 }
 
 export type Bench = ReturnType<typeof useRegionBench>;
