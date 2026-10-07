@@ -2,9 +2,12 @@ export type Stats = { n: number; p50: number; p95: number; max: number; total: n
 export type Net = {
   wsSamples: number[];
   httpSamples: number[];
+  siteSamples: number[]; // HTTP action on .convex.site
+  sse?: { firstMs: number; totalMs: number; streamed: boolean };
   echoSmall?: number;
   echoBig?: number;
   mbps?: number;
+  wsBig?: number; // 1 MB message over the WebSocket
 };
 // insert: browser E2E (send → mutation resolve). insertServer: same-clock listRanAt − startedAt.
 // insertNetwork: per insert, E2E − server span = time outside the server (there, queue, back).
