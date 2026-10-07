@@ -7,5 +7,6 @@ export const rateLimiter = new RateLimiter(components.rateLimiter, {
   netTests: { kind: "token bucket", rate: 8, period: 5 * MINUTE, capacity: 8 }, // per user, ~2 full runs
   locationLogs: { kind: "token bucket", rate: 30, period: MINUTE, capacity: 30 }, // per user
   sessionStarts: { kind: "token bucket", rate: 30, period: MINUTE, capacity: 30 }, // per user key
-  newUsers: { kind: "token bucket", rate: 60, period: MINUTE, capacity: 60 }, // global
+  // Global (one bucket for everyone), so concurrent session starts could conflict on it; shards spread the writes.
+  newUsers: { kind: "token bucket", rate: 60, period: MINUTE, capacity: 60, shards: 4 },
 });
