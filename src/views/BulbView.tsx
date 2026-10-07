@@ -11,6 +11,7 @@ type BulbState = { on: boolean; flipId: string; flippedAt: number };
 type Flip = { id: string; on: boolean; t0: number; landed: Record<string, number>; failed: Record<string, string> };
 
 const ORDINAL = ["1st", "2nd", "3rd", "4th"];
+const MAX_RUNS = 5;
 
 // One switch, four regions. A click writes the same state to every region at once; each bulb
 // changes the moment its own region's update reaches this browser, so the order is real.
@@ -18,9 +19,17 @@ export function BulbView({ ready }: { ready: boolean }) {
   const [states, setStates] = useState<Record<string, BulbState | null>>({});
   const [flip, setFlip] = useState<Flip | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [runs, setRuns] = useState<(Flip & { at: number })[]>([]); // this tab's finished clicks, newest first
 
   const pending = flip !== null && REGIONS.some((r) => flip.landed[r.id] === undefined && !flip.failed[r.id]);
   const now = useNow(pending);
+
+  // Once every region has landed (or failed), keep the click as a run.
+  const [recorded, setRecorded] = useState<string | null>(null);
+  if (flip && !pending && recorded !== flip.id) {
+    setRecorded(flip.id);
+    setRuns((prev) => [{ ...flip, at: Date.now() }, ...prev].slice(0, MAX_RUNS));
+  }
 
   // The switch shows your click's target while it's in flight, else the most recently flipped region.
   const latest = Object.values(states)
@@ -73,11 +82,61 @@ export function BulbView({ ready }: { ready: boolean }) {
           ))}
         </div>
 
+        <RunsTable runs={runs} />
+
         <p className="max-w-xl text-center text-xs text-muted">
           Times are round trips: from your click, to that region, and back to this browser. Other visitors' clicks flip
           your bulbs too, in the order their updates arrive.
         </p>
       </main>
+    </div>
+  );
+}
+
+// Your latest clicks: each region's round trip, fastest highlighted.
+function RunsTable({ runs }: { runs: (Flip & { at: number })[] }) {
+  return (
+    <div className="w-full max-w-md overflow-x-auto rounded-md border border-line">
+      <table className="w-full border-collapse font-mono text-[11px]">
+        <thead className="bg-white/[0.03] text-left text-muted">
+          <tr className="[&>th]:border-b [&>th]:border-line [&>th]:px-2 [&>th]:py-1 [&>th]:font-normal">
+            <th>time</th>
+            <th>switch</th>
+            {REGIONS.map((r) => (
+              <th key={r.id} className="text-right" title={r.label}>
+                {r.flag}
+              </th>
+            ))}
+            <th className="text-right">fastest</th>
+          </tr>
+        </thead>
+        <tbody>
+          {runs.map((run) => {
+            const fastest = REGIONS.filter((r) => run.landed[r.id] !== undefined).sort(
+              (a, b) => run.landed[a.id] - run.landed[b.id],
+            )[0];
+            return (
+              <tr key={run.id} className="border-b border-line/60 text-neutral-300 last:border-0 [&>td]:px-2 [&>td]:py-0.5">
+                <td className="text-muted">{new Date(run.at).toLocaleTimeString()}</td>
+                <td>{run.on ? "on" : "off"}</td>
+                {REGIONS.map((r) => (
+                  <td key={r.id} className={cx("text-right tabular-nums", fastest === r && "text-emerald-300")}>
+                    {run.failed[r.id] ? <span className="text-red-400">failed</span> : ms(run.landed[r.id])}
+                  </td>
+                ))}
+                <td className="text-right" title={fastest?.label}>{fastest ? fastest.flag : "—"}</td>
+              </tr>
+            );
+          })}
+          {runs.length === 0 && (
+            <tr>
+              <td colSpan={REGIONS.length + 3} className="px-2 py-2 text-center font-sans text-muted">
+                No runs yet. Flip the switch.
+              </td>
+            </tr>
+          )}
+        </tbody>
+      </table>
     </div>
   );
 }
