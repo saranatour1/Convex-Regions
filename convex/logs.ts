@@ -40,6 +40,10 @@ export const netTestFinish = mutation({
         echoSmallMs: v.number(),
         echoBigMs: v.number(),
         mbps: v.number(),
+        siteMs: v.optional(v.number()),
+        sseFirstMs: v.optional(v.number()),
+        sseStreamed: v.optional(v.boolean()),
+        wsBigMs: v.optional(v.number()),
       }),
       v.object({ kind: v.literal("failed"), error: v.string() }),
     ),
@@ -83,5 +87,18 @@ export const locationChanged = mutation({
       previousColo: last?.colo,
     });
     return null;
+  },
+});
+
+// Network test: a 1 MB message over the WebSocket, like get-convex/network-test's large query
+// results (some networks drop big WebSocket frames). A mutation rather than a query so it needs
+// a session and counts against the app-wide cap; a public query would be unlimited egress.
+export const netPayload = mutation({
+  args: { sessionToken: v.string(), bytes: v.number() },
+  returns: v.string(),
+  handler: async (ctx, { sessionToken, bytes }) => {
+    if (!Number.isInteger(bytes) || bytes < 1 || bytes > 1_000_000) throw new ConvexError({ kind: "BadInput" as const });
+    await requireSession(ctx, sessionToken);
+    return "x".repeat(bytes);
   },
 });

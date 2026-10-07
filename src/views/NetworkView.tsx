@@ -71,7 +71,7 @@ export function NetworkView({ location, ready }: { location: ExitLocation | null
   return (
     <div className="flex min-h-0 flex-1 flex-col">
       <div className="flex flex-wrap items-center gap-2 border-b border-line px-4 py-2 text-[13px] text-muted">
-        <span className="mr-auto">5 WebSocket pings, 5 HTTP pings, then a 128 B and a 4 MB echo, one region at a time.</span>
+        <span className="mr-auto">Pings, an HTTP action, an SSE stream, echoes and a 1 MB WebSocket message, one region at a time.</span>
         <Chip tone="primary" icon={<PulseIcon />} onClick={() => void run(REGIONS)} disabled={running || !ready}>
           {running ? "Testing…" : "Run all regions"}
         </Chip>
@@ -103,4 +103,8 @@ const summarize = (net: Required<Net>) => ({
   echoSmallMs: net.echoSmall,
   echoBigMs: net.echoBig,
   mbps: net.mbps,
+  siteMs: median(net.siteSamples),
+  sseFirstMs: net.sse.firstMs,
+  sseStreamed: net.sse.streamed,
+  wsBigMs: net.wsBig,
 });
