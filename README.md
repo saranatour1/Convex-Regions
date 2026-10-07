@@ -2,8 +2,7 @@
 
 How fast a Convex write shows up in four regions (US, Europe, Australia, Canada), live.
 
-**Live:** https://zany-puma-173.convex.site
-
+[![Live demo](https://img.shields.io/badge/live%20demo-zany--puma--173.convex.site-8D2676)](https://zany-puma-173.convex.site)
 ## Tabs
 
 - **Latency**: insert rows in every region and time each round trip.
